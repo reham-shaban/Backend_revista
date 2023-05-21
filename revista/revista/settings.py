@@ -32,9 +32,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    'django.contrib.sites',
+    
     # third-party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'knox',
+    #'social_django',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     
     # local apps
     'accounts',
@@ -49,6 +57,29 @@ REST_FRAMEWORK = {
         'knox.auth.TokenAuthentication',
     ]
 }
+
+# For login with google ('allauth')
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+# For login with google ('social_django')
+# AUTHENTICATION_BACKENDS = [
+#     'social_core.backends.google.GoogleOAuth2',
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
+
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '545273586219-5fqdrv30raf0d3ap9ufbl599svuaesbb.apps.googleusercontent.com'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
+# SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'access_type': 'offline'}
+# #
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
