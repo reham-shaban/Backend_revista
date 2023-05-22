@@ -1,12 +1,11 @@
 from django.db import models
 from django.conf import settings
 
-from accounts.models import CustomUser
 
 # Create your models here.
 
 class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     profile_image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     cover_image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     bio = models.TextField()
@@ -31,6 +30,7 @@ class UserStatus(models.Model):
 
 class Topic(models.Model):
     name = models.CharField(max_length=50)
+    image = models.ImageField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -39,16 +39,16 @@ class Topic(models.Model):
 
 
 class TopicFollow(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('profile', 'topic')
-        
+      
     class Meta:
         verbose_name_plural = "Topics Follow"
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'topic'], name='unique_user_topic')
+        ]
 
 
 class Follow(models.Model):
