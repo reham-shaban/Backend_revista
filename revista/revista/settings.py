@@ -25,6 +25,8 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,11 +45,13 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'channels',
     
     # local apps
     'accounts',
     'main',
     'posts',
+    'notifications',
 ]
 
 REST_FRAMEWORK = {
@@ -172,3 +176,22 @@ EMAIL_PORT = 587
 #EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'reham.shaban2002@gmail.com'
 EMAIL_HOST_PASSWORD = 'jqeevcadwnxnpzel'
+
+# websocket
+ASGI_APPLICATION = "revista.asgi.application"
+
+# In testing
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+# In production
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],
+#         },
+#     },
+# }

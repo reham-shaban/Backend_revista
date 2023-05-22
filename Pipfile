@@ -12,6 +12,7 @@ django-rest-knox = "*"
 social-auth-core = "*"
 social-auth-app-django = "*"
 django-allauth = "*"
+channels = {extras = ["daphne"], version = "*"}
 
 [dev-packages]
 
