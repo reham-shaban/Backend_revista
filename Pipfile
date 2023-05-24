@@ -13,6 +13,7 @@ social-auth-core = "*"
 social-auth-app-django = "*"
 django-allauth = "*"
 channels = {extras = ["daphne"], version = "*"}
+google-auth = "*"
 
 [dev-packages]
 

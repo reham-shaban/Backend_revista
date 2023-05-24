@@ -49,6 +49,9 @@ class TopicFollow(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'topic'], name='unique_user_topic')
         ]
+        
+    def __str__(self):
+        return f'{self.user} {self.topic}'
 
 
 class Follow(models.Model):

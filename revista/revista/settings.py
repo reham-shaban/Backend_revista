@@ -14,11 +14,7 @@ SECRET_KEY = 'django-insecure-x@k+up4am2(itp#bl_7j^fe96kb+q7f^)o5%zw+*sb71#9&c-j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '192.168.43.231',
-]
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -41,12 +37,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'knox',
+    'channels',
     #'social_django',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'channels',
     
     # local apps
     'accounts',
@@ -73,6 +69,16 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': '545273586219-5fqdrv30raf0d3ap9ufbl599svuaesbb.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
 
 # For login with google ('social_django')
 # AUTHENTICATION_BACKENDS = [

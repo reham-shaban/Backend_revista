@@ -12,4 +12,5 @@ urlpatterns = [
     path('forget-password/', views.ForgetPasswordView.as_view()),
     path('check-code/', views.CheckCodeView.as_view()),
     path('reset-password/', views.ResetPasswordView.as_view()),
+    path('google-login/', views.GoogleSignInView.as_view()),
 ]

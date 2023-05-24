@@ -1,20 +1,56 @@
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.mail import send_mail
 from django.forms import ValidationError
-import random
+import random, requests
 
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
+
 from knox.views import LoginView as KnoxLoginView
 from knox.models import AuthToken
 
 from .models import CustomUser, PasswordResetCode
-from .serializers import UserSerializer, RegisterSerializer
+from .serializers import UserSerializer, RegisterSerializer, GoogleSignInSerializer
 
+# Login with google
+class GoogleSignInView(APIView):
+    def post(self, request):
+        serializer = GoogleSignInSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Verify the authenticityof the tokens
+        # access_token = serializer.validated_data['access_token']
+        id_token = serializer.validated_data['id_token']
+
+        # Verify the id_token with Google API
+        response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token}')
+        if response.status_code != 200:
+            return Response({'error': 'Invalid id_token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Extract the user information from the Google API response
+        user_data = response.json()
+        email = user_data.get('email')
+        google_id = user_data.get('sub')
+
+        # Authenticate the user
+        user = authenticate(request, email=email, google_id=google_id)
+        if user is None:
+            # Create a new user if the user does not exist
+            user = CustomUser.objects.create_user(email=email, google_id=google_id)
+
+        # Log the user in
+        login(request, user)
+
+        # Generate an auth token for the user
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Return the response with the user ID and auth token
+        return Response({'user_id': user.id, 'auth_token': token.key})
+     
 # Register API
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
