@@ -1,6 +1,4 @@
 from rest_framework import serializers
-import base64
-from django.core.files.storage import default_storage
 
 from .models import Topic, TopicFollow
 
@@ -14,11 +12,12 @@ class TopicSerializer(serializers.ModelSerializer):
 class TopicFollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = TopicFollow
-        fields = ['id', 'user', 'topic']
-        read_only_fields = ['user'] 
+        fields = ['id', 'profile', 'topic']
+        read_only_fields = ['profile']
 
-    def create(self, validated_data):
-        user = self.context['request'].user  # Get the authenticated user
-        validated_data['user'] = user  # Assign the user to the validated data
-        return super().create(validated_data)
-    
+    # def create(self, validated_data):
+    #     user = self.context['request'].user  # Get the authenticated user
+    #     profile = user.profile  # Get the Profile object of the authenticated user
+    #     validated_data['profile'] = profile  # Assign the profile to the validated data
+    #     return super().create(validated_data)
+   

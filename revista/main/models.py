@@ -6,24 +6,23 @@ from django.conf import settings
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    profile_image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-    cover_image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-    bio = models.TextField()
-    followers_count = models.IntegerField()
-    following_count = models.IntegerField()
+    cover_image = models.ImageField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    followers_count = models.IntegerField(default=0)
+    following_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-      return f'{self.user.username} Profile'
+      return f'{self.user.username} profile'
 
 class UserStatus(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='status')
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='status')
     is_online = models.BooleanField(default=False)
     last_activity = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.user.username} ({self.user.id})'
+        return f'{self.profile.user.username} ({self.profile.id})'
 
     class Meta:
         verbose_name_plural = "User statuses"
@@ -39,7 +38,7 @@ class Topic(models.Model):
 
 
 class TopicFollow(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -47,21 +46,21 @@ class TopicFollow(models.Model):
     class Meta:
         verbose_name_plural = "Topics Follow"
         constraints = [
-            models.UniqueConstraint(fields=['user', 'topic'], name='unique_user_topic')
+            models.UniqueConstraint(fields=['profile', 'topic'], name='unique_profile_topic')
         ]
         
     def __str__(self):
-        return f'{self.user} {self.topic}'
+        return f'{self.profile.user.username} {self.topic}'
 
 
 class Follow(models.Model):
-    follower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='following')
-    followed = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='followers')
+    follower = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='following')
+    followed = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='followers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class Block(models.Model):
-    blocker = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='blocker', on_delete=models.CASCADE)
-    blocked = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='blocked', on_delete=models.CASCADE)
+    blocker = models.ForeignKey(Profile, related_name='blocker', on_delete=models.CASCADE)
+    blocked = models.ForeignKey(Profile, related_name='blocked', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

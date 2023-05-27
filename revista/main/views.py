@@ -23,7 +23,7 @@ class TopicFollowView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return TopicFollow.objects.filter(user=user)
+        return TopicFollow.objects.filter(profile__user=user)
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
@@ -33,6 +33,7 @@ class TopicFollowView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        serializer.save()
-
+        user = self.request.user
+        profile = user.profile
+        serializer.save(profile=profile)
 
