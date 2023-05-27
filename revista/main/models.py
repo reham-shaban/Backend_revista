@@ -29,9 +29,17 @@ class UserStatus(models.Model):
 
 class Topic(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(blank=True, null=True)
+    image = models.ImageField(upload_to='topics/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def delete(self, *args, **kwargs):
+        # Remove the image file if it exists
+        if self.image:
+            storage, path = self.image.storage, self.image.path
+            storage.delete(path)
+
+        super().delete(*args, **kwargs)
     
     def __str__(self):
         return self.name

@@ -5,7 +5,7 @@ from . import views
 
 # '/'
 urlpatterns = [
-    # path('topics/', views.TopicView.as_view()),
-    # path('topics-follow/', views.TopicFollowView.as_view()),
+    path('topics/', views.TopicView.as_view()),
+    path('topics-follow/', views.TopicFollowView.as_view()),
 
 ]
