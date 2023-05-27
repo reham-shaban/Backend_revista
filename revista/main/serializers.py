@@ -1,6 +1,16 @@
 from rest_framework import serializers
 
-from .models import Topic, TopicFollow
+from .models import Profile, Topic, TopicFollow
+from accounts.serializers import UserSerializer
+
+# Profile
+class ProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ('id', 'user', 'cover_image', 'bio', 'followers_count', 'following_count', 'created_at', 'updated_at')
+        read_only_fields = ['id', 'user','followers_count', 'following_count', 'created_at', 'updated_at']
 
 # Topic
 class TopicSerializer(serializers.ModelSerializer):
@@ -14,10 +24,3 @@ class TopicFollowSerializer(serializers.ModelSerializer):
         model = TopicFollow
         fields = ['id', 'profile', 'topic']
         read_only_fields = ['profile']
-
-    # def create(self, validated_data):
-    #     user = self.context['request'].user  # Get the authenticated user
-    #     profile = user.profile  # Get the Profile object of the authenticated user
-    #     validated_data['profile'] = profile  # Assign the profile to the validated data
-    #     return super().create(validated_data)
-   

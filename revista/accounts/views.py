@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from knox.auth import TokenAuthentication
 
 from knox.views import LoginView as KnoxLoginView
 from knox.models import AuthToken
@@ -160,3 +162,18 @@ class ResetPasswordView(APIView):
         user.save()
         
         return Response({"message" : "successful"}, status=status.HTTP_200_OK)
+
+# List all users
+class UserView(generics.ListCreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
+
+
+# Update User info
+class UserUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

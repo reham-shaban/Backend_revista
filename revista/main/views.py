@@ -1,19 +1,32 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 
-from .models import Topic, TopicFollow
-from .serializers import TopicSerializer, TopicFollowSerializer
+from .models import Profile, Topic, TopicFollow
+from .serializers import ProfileSerializer, TopicSerializer, TopicFollowSerializer
+
+# List all Profiles
+class ProfileView(generics.ListCreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
+
+# Update Profile
+class ProfileUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 # List Topics
-class TopicView(generics.ListAPIView):
+class TopicListView(generics.ListAPIView):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
 
 # Follow Topics [GET, POST]
 class TopicFollowView(generics.ListCreateAPIView):

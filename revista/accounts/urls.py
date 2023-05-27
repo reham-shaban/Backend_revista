@@ -13,4 +13,7 @@ urlpatterns = [
     path('check-code/', views.CheckCodeView.as_view()),
     path('reset-password/', views.ResetPasswordView.as_view()),
    # path('google-login/', views.GoogleSignInView.as_view()),
+   
+   path('user-list/', views.UserView.as_view()),
+   path('user-edit/<int:pk>', views.UserUpdateView.as_view()),
 ]

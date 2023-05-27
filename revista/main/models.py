@@ -44,7 +44,6 @@ class Topic(models.Model):
     def __str__(self):
         return self.name
 
-
 class TopicFollow(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
@@ -59,7 +58,6 @@ class TopicFollow(models.Model):
         
     def __str__(self):
         return f'{self.profile.user.username} {self.topic}'
-
 
 class Follow(models.Model):
     follower = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='following')

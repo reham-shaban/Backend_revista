@@ -3,6 +3,9 @@ from .models import CustomUser
 
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+
     class Meta:
         model = CustomUser
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'profile_image', 'birth_date', 'phone_number', 'gender')
