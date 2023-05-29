@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 
-from .models import Profile, Topic, TopicFollow
-from .serializers import ProfileSerializer, TopicSerializer, TopicFollowSerializer
+from .models import Profile, Topic, TopicFollow, Follow
+from .serializers import ProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer
 
 # List all Profiles
 class ProfileView(generics.ListCreateAPIView):
@@ -14,12 +14,23 @@ class ProfileView(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
 
+# Retrieve single Profile with id
+class SingleProfileView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+  
+
 # Update Profile
 class ProfileUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user.profile
 
 # List Topics
 class TopicListView(generics.ListAPIView):
@@ -50,3 +61,16 @@ class TopicFollowView(generics.ListCreateAPIView):
         profile = user.profile
         serializer.save(profile=profile)
 
+class FollowView(generics.ListCreateAPIView):
+    queryset = Follow.objects.all()
+    serializer_class = FollowSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = Follow.objects.all()
+        queryset = queryset.filter(follower=self.request.user.profile)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(follower=self.request.user.profile)

@@ -8,5 +8,8 @@ urlpatterns = [
     path('topics/', views.TopicListView.as_view()),
     path('topics-follow/', views.TopicFollowView.as_view()),
     path('profile-list/', views.ProfileView.as_view()),
-    path('profile-edit/<int:pk>', views.ProfileUpdateView.as_view()),
+    path('profile/<int:pk>', views.SingleProfileView.as_view()),
+    path('profile-edit/', views.ProfileUpdateView.as_view()),
+    
+    path('follow-list/', views.FollowView.as_view()),
 ]

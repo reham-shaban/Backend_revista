@@ -15,5 +15,5 @@ urlpatterns = [
    # path('google-login/', views.GoogleSignInView.as_view()),
    
    path('user-list/', views.UserView.as_view()),
-   path('user-edit/<int:pk>', views.UserUpdateView.as_view()),
+   path('user-edit/', views.UserUpdateView.as_view()),
 ]

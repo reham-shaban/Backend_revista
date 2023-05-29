@@ -60,10 +60,16 @@ class TopicFollow(models.Model):
         return f'{self.profile.user.username} {self.topic}'
 
 class Follow(models.Model):
-    follower = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='following')
-    followed = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='followers')
+    follower = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='follower')
+    followed = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='followerd')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['follower', 'followed'], name='unique_follower_followed')
+        ]
+        
 
 class Block(models.Model):
     blocker = models.ForeignKey(Profile, related_name='blocker', on_delete=models.CASCADE)
