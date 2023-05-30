@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.models import CustomUser
 from .models import Profile, Topic, TopicFollow, Follow
 from accounts.serializers import UserSerializer
 
@@ -36,11 +37,34 @@ class TopicFollowSerializer(serializers.ModelSerializer):
         read_only_fields = ['profile']
 
 # Follow
-class FollowSerializer(serializers.ModelSerializer):
-    follower = ProfileSerializer(read_only=True)
-    followed = ProfileSerializer(read_only=True)
+class FollowSerializer(serializers.ModelSerializer):   
+    class Meta:
+        model = Follow
+        fields = ['follower', 'followed']
+        read_only_fields = ['follower']
+
+class UserFollowListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'first_name', 'last_name', 'profile_image']
+        
+class ProfileFollowListSerializer(serializers.ModelSerializer):
+    user = UserFollowListSerializer(read_only=True)
+    
+    class Meta:
+        model = Profile
+        fields = ['id', 'user']
+        
+class FollowingListSerializer(serializers.ModelSerializer):
+    followed = ProfileFollowListSerializer(read_only=True)
     
     class Meta:
         model = Follow
-        fields = ['id', 'follower', 'followed']
-        read_only_fields = ['follower']
+        fields = ['followed']
+        
+class FollowersListSerializer(serializers.ModelSerializer):
+    follower = ProfileFollowListSerializer(read_only=True)
+    
+    class Meta:
+        model = Follow
+        fields = ['follower']

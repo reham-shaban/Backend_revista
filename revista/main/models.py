@@ -70,6 +70,9 @@ class Follow(models.Model):
             models.UniqueConstraint(fields=['follower', 'followed'], name='unique_follower_followed')
         ]
         
+    def __str__(self):
+        return f'{self.follower} is following {self.followed}'
+        
 
 class Block(models.Model):
     blocker = models.ForeignKey(Profile, related_name='blocker', on_delete=models.CASCADE)

@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 
 from .models import Profile, Topic, TopicFollow, Follow
-from .serializers import ProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer
+from .serializers import ProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer, FollowingListSerializer, FollowersListSerializer
 
 # List all Profiles
 class ProfileView(generics.ListCreateAPIView):
@@ -20,7 +20,6 @@ class SingleProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-  
 
 # Update Profile
 class ProfileUpdateView(generics.RetrieveUpdateAPIView):
@@ -31,6 +30,7 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
     
     def get_object(self):
         return self.request.user.profile
+
 
 # List Topics
 class TopicListView(generics.ListAPIView):
@@ -61,16 +61,35 @@ class TopicFollowView(generics.ListCreateAPIView):
         profile = user.profile
         serializer.save(profile=profile)
 
-class FollowView(generics.ListCreateAPIView):
+
+# Follow someone [POST]
+class FollowView(generics.CreateAPIView):
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        serializer.save(follower=self.request.user.profile)
+    
+# List my following [GET]
+class FollowingListView(generics.ListAPIView):
+    serializer_class = FollowingListSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         queryset = Follow.objects.all()
         queryset = queryset.filter(follower=self.request.user.profile)
+        return queryset 
+              
+# List my followers [GET]
+class FollowersListView(generics.ListAPIView):
+    serializer_class = FollowersListSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = Follow.objects.all()
+        queryset = queryset.filter(followed=self.request.user.profile)
         return queryset
-
-    def perform_create(self, serializer):
-        serializer.save(follower=self.request.user.profile)
