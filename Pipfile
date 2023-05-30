@@ -14,6 +14,10 @@ social-auth-app-django = "*"
 django-allauth = "*"
 channels = {extras = ["daphne"], version = "*"}
 google-auth = "*"
+django-extensions = "*"
+graphviz = "*"
+pyparsing = "*"
+pydot = "*"
 django-filter = "*"
 
 [dev-packages]

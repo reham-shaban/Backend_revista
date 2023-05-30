@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'main',
     'posts',
     'notifications',
+    
+    #other apps
+    'django_extensions',
 ]
 
 REST_FRAMEWORK = {
@@ -212,3 +215,9 @@ CHANNEL_LAYERS = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}

@@ -285,14 +285,6 @@
             "index": "pypi",
             "version": "==0.54.0"
         },
-        "django-filter": {
-            "hashes": [
-                "sha256:2fe15f78108475eda525692813205fa6f9e8c1caf1ae65daa5862d403c6dbf00",
-                "sha256:d12d8e0fc6d3eb26641e553e5d53b191eb8cec611427d4bdce0becb1f7c172b5"
-            ],
-            "index": "pypi",
-            "version": "==23.2"
-        },
         "django-phonenumber-field": {
             "hashes": [
                 "sha256:4eaab35fe9a163046dc3a47188771385c56a788e0e11b7bbcc662e1e6b7b9104",
@@ -319,11 +311,11 @@
         },
         "google-auth": {
             "hashes": [
-                "sha256:be617bfaf77774008e9d177573f782e109188c8a64ae6e744285df5cea3e7df6",
-                "sha256:f39d528077ac540793dd3c22a8706178f157642a67d874db25c640b7fead277e"
+                "sha256:55a395cdfd3f3dd3f649131d41f97c17b4ed8a2aac1be3502090c716314e8a37",
+                "sha256:d7a3249027e7f464fbbfd7ee8319a08ad09d2eea51578575c4bd360ffa049ccb"
             ],
             "index": "pypi",
-            "version": "==2.19.0"
+            "version": "==2.18.1"
         },
         "hyperlink": {
             "hashes": [
@@ -450,6 +442,14 @@
             ],
             "version": "==2.21"
         },
+        "pydot": {
+            "hashes": [
+                "sha256:248081a39bcb56784deb018977e428605c1c758f10897a339fce1dd728ff007d",
+                "sha256:66c98190c65b8d2e2382a441b4c0edfdb4f4c025ef9cb9874de478fb0793a451"
+            ],
+            "index": "pypi",
+            "version": "==1.4.2"
+        },
         "pyjwt": {
             "extras": [
                 "crypto"
@@ -467,6 +467,14 @@
                 "sha256:9e0c526404a210df9d2b18cd33364beadb0dc858a739b885677bc65e105d4a4c"
             ],
             "version": "==23.1.1"
+        },
+        "pyparsing": {
+            "hashes": [
+                "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb",
+                "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"
+            ],
+            "index": "pypi",
+            "version": "==3.0.9"
         },
         "python3-openid": {
             "hashes": [
