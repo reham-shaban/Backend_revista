@@ -10,9 +10,10 @@ urlpatterns = [
     
     path('profile-list/', views.ProfileView.as_view()),
     path('profile/<int:pk>', views.SingleProfileView.as_view()),
-    path('profile-edit/', views.ProfileUpdateView.as_view()),
+    path('my-profile/', views.ProfileUpdateView.as_view()),
     
     path('follow/', views.FollowView.as_view()),
+    path('unfollow/<int:pk>', views.UnFollowView.as_view()),
     path('following-list/', views.FollowingListView.as_view()),
     path('followers-list/', views.FollowersListView.as_view()),
 ]

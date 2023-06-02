@@ -69,6 +69,11 @@ REST_FRAMEWORK = {
     ],
 }
 
+REST_KNOX = {
+    'TOKEN_TTL': None  # Set the token expiration time to None
+}
+
+
 # For login with google ('allauth')
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
