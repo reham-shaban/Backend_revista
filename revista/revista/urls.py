@@ -18,6 +18,7 @@ urlpatterns = [
     # local
     path('auth/', include('accounts.urls')),
     path('', include('main.urls')),
+    path('notifications/', include('notifications.urls')),
        
     # path('social-django/', include('social_django.urls', namespace='social')),
 
