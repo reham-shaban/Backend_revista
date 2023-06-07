@@ -12,13 +12,13 @@ from allauth.socialaccount.providers.oauth2.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')), # allauth library
-   # path('accounts/google/login/', OAuth2LoginView.as_view()),
-   # path('accounts/google/callback/', OAuth2CallbackView.as_view(adapter=GoogleOAuth2Adapter)),
+    # path('accounts/google/login/', OAuth2LoginView.as_view()),
+    # path('accounts/google/callback/', OAuth2CallbackView.as_view(adapter=GoogleOAuth2Adapter)),
     
     # local
     path('auth/', include('accounts.urls')),
     path('', include('main.urls')),
-       
+    path('posts/', include('posts.urls')),
     # path('social-django/', include('social_django.urls', namespace='social')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -8,13 +8,14 @@ from main.models import Profile, Topic
 class Post(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='author')
     content = models.TextField()
+    link = models.URLField(blank=True, null=True)
     topics = models.ManyToManyField(Topic)
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
     likes_count = models.IntegerField(default=0)
     comments_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return f"{self.author.user.username}'s post"
 
