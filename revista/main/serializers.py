@@ -67,9 +67,10 @@ class VistorProfileSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             user_profile = request.user.profile
-            is_following = Follow.objects.filter(follower=user_profile, followed=obj).exists()
-            return is_following
-        return False
+            follow = Follow.objects.filter(follower=user_profile, followed=obj)
+            if follow.exists():
+                return follow.first().id
+        return 0
 
 
 # Topic
@@ -109,11 +110,11 @@ class FollowingListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Follow
-        fields = ['followed']
+        fields = ['id', 'followed']
         
 class FollowersListSerializer(serializers.ModelSerializer):
     follower = ProfileFollowListSerializer(read_only=True)
     
     class Meta:
         model = Follow
-        fields = ['follower']
+        fields = ['id', 'follower']
