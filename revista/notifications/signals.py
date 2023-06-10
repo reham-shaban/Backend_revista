@@ -14,10 +14,12 @@ logger = logging.getLogger(__name__)
 # Follow
 @receiver(post_save, sender=Follow)
 def send_notification_on_follow(sender, instance, created, **kwargs):
+    print('Signal handler - send_notification_on_follow')
+    
     if created:
-        logger.debug(f"A new Follow object is created: {instance}")
         channel_layer = get_channel_layer()
-        group_name = f'user-notifications-{instance.followed.id}'  # Create a separate group for each user
+        id = instance.followed.user.id
+        group_name = f'user-notifications-{id}'  # Create a separate group for each user       
         
         follower_username = instance.follower.user.username
         follower_profile_image = instance.follower.user.profile_image
@@ -25,6 +27,7 @@ def send_notification_on_follow(sender, instance, created, **kwargs):
         if not follower_profile_image:
             follower_profile_image = None
         
+        detail = f'{follower_username} started following you.'
         created_at = instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
        
         event = {
@@ -32,23 +35,27 @@ def send_notification_on_follow(sender, instance, created, **kwargs):
             'text': {
                 'username': follower_username,
                 'profile_image': follower_profile_image,
+                'detail' : detail,
                 'created_at': created_at
             },
         }
         
+        print(event)
+        
         async_to_sync(channel_layer.group_send)(group_name, event)
+        print(f'Sent follow_notification event to group {group_name}')
 
 
 # register
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def send_notification_on_register(sender, instance, created, **kwargs):
-    if created:
-        logger.debug(f"New user {instance.username} registered")
-        # trigger notification to all consumers in the 'user-notification' group
-        channel_layer = get_channel_layer()
-        group_name = 'user-notifications'
-        event = {
-            'type' : 'user_joined',
-            'text' : instance.username
-        }
-        async_to_sync(channel_layer.group_send)(group_name, event)
+# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+# def send_notification_on_register(sender, instance, created, **kwargs):
+#     if created:
+#         logger.debug(f"New user {instance.username} registered")
+#         # trigger notification to all consumers in the 'user-notification' group
+#         channel_layer = get_channel_layer()
+#         group_name = 'user-notifications'
+#         event = {
+#             'type' : 'user_joined',
+#             'text' : instance.username
+#         }
+#         async_to_sync(channel_layer.group_send)(group_name, event)
