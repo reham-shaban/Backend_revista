@@ -1,49 +1,28 @@
-from .models import Post, Comment, SavedPost
+from .models import Post, Comment, SavedPost,Like
 from rest_framework import generics
-from .serializers import PostSerializer, CommentSerializer,SavedPostSerializer
+from .serializers import PostSerializer, CommentSerializer,SavedPostSerializer,LikeSerializer
 from rest_framework.permissions import IsAuthenticated
 from knox.auth import TokenAuthentication
+from django.http import Http404
 
 #Posts CRUDs
-#Create posts
-class PostCreateView(generics.ListCreateAPIView):
+#posts [POST, GET]get a list of posts
+class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     ordering_fields=['created_at'] # add the following to show up first
 
-#list of Posts
-class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    ordering_fields=['created_at'] # add the following to show up first
-
-#fetch a post
-class PostDetailView(generics.RetrieveAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-#Update posts
-class PostUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-#Delete posts
-class PostDeleteView(generics.DestroyAPIView):
+#post [GET ,PUT, PATCH, DELETE]
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
 #Comment Cruds
-#Create comments
+#list of comments and creating a comment [ GET, POST]
 class CommentCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -51,33 +30,8 @@ class CommentCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]    
     ordering_fields=['created_at'] # add the following to show up first
 
-#list of comments
-class CommentListView(generics.ListAPIView):
-    # to get a list of comments that are specific to the post
-    def get_queryset(self):
-        post_id = self.kwargs['post']
-        return Comment.objects.filter(post__id=post_id)
-    serializer_class = CommentSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    ordering_fields=['created_at'] # add the following to show up first
-
-#fetch a comment
-class CommentDetailView(generics.RetrieveAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-#Update comments
-class CommentUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-#Delete comments
-class CommentDeleteView(generics.DestroyAPIView):
+#comment [GET ,PUT, PATCH, DELETE] get a single comment
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
@@ -85,46 +39,50 @@ class CommentDeleteView(generics.DestroyAPIView):
 
 #Like Cruds
 #Create Likes
-
-
-#Read Likes
-
+class LikeCreateView(generics.ListCreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 #Delete Likes
+class LikeDeleteView(generics.DestroyAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 #SavedPost CRUDs
-#create SavedPost
-class SavedPostCreateView(generics.ListCreateAPIView):
+class SavedPostListCreateView(generics.ListCreateAPIView):
     queryset = SavedPost.objects.all()
     serializer_class = SavedPostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     ordering_fields=['created_at']
-
-#List of SavedPosts#####################################################
-#Still needs work on the filtering of saved posts to be user specific it currently returning empty list
-class SavedPostListView(generics.ListAPIView):
-    queryset = SavedPost.objects.all()
-    serializer_class = SavedPostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
     def get_queryset(self):
-        user_profile = self.request.user.profile
-        print(user_profile)
-        return SavedPost.objects.filter(profile=user_profile)
-    
+        # Filter queryset to include only saved posts of the authenticated user
+        profile = self.request.data.get('profile')
+        if profile is not None:
+            return SavedPost.objects.filter(profile__id=profile)
+        else:
+            return SavedPost.objects.none()
 
-
-#fetch a SavedPost
-class SavedPostDetailView(generics.RetrieveAPIView):
+class SavedPostDetailView(generics.RetrieveDestroyAPIView):
     queryset = SavedPost.objects.all()
     serializer_class = SavedPostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-#Delete SavedPosts
-class SavedPostDeleteView(generics.DestroyAPIView):
-    queryset = SavedPost.objects.all()
-    serializer_class = SavedPostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    def get_object(self):
+        # Get the profile ID and post ID from the URL parameters
+        profile_id = self.kwargs['profile_id']
+        post_id = self.kwargs['post_id']
+
+        # Retrieve the specific saved post based on the profile ID and post ID
+        try:
+            saved_post = SavedPost.objects.get(profile__id=profile_id, post__id=post_id)
+        except SavedPost.DoesNotExist:
+            raise Http404("Saved post does not exist")
+
+        return saved_post
+
