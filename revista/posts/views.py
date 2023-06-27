@@ -8,11 +8,15 @@ from django.http import Http404
 #Posts CRUDs
 #posts [POST, GET]get a list of posts
 class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     ordering_fields=['created_at'] # add the following to show up first
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        topic_ids = self.request.query_params.getlist('topic_id')
+        queryset = queryset.filter(topics__id__in=topic_ids)
+        return queryset
 
 #post [GET ,PUT, PATCH, DELETE]
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
