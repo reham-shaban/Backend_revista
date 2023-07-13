@@ -7,7 +7,12 @@ from .serializers import NotificationSerializer
 
 # Create your views here.
 class NotificationListView(generics.ListAPIView):
-    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = Notification.objects.all()
+        queryset = queryset.filter(user=self.request.user)
+        return queryset 
+     
