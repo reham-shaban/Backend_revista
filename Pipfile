@@ -9,9 +9,6 @@ django-phonenumber-field = "*"
 pillow = "*"
 djangorestframework = "*"
 django-rest-knox = "*"
-social-auth-core = "*"
-social-auth-app-django = "*"
-django-allauth = "*"
 channels = {extras = ["daphne"], version = "*"}
 google-auth = "*"
 django-extensions = "*"
@@ -19,6 +16,7 @@ graphviz = "*"
 pyparsing = "*"
 pydot = "*"
 django-filter = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

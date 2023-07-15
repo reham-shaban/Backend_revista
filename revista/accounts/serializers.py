@@ -19,8 +19,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
         return CustomUser.objects.create_user(**validated_data)
-
-# Google Serializer
-class GoogleSignInSerializer(serializers.Serializer):
-    #access_token = serializers.CharField()
-    id_token = serializers.CharField()

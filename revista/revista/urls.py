@@ -2,25 +2,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static 
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.views import (
-    OAuth2CallbackView,
-    OAuth2LoginView,
-)
 
-
+# urls
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')), # allauth library
-   # path('accounts/google/login/', OAuth2LoginView.as_view()),
-   # path('accounts/google/callback/', OAuth2CallbackView.as_view(adapter=GoogleOAuth2Adapter)),
     
-    # local
-    path('auth/', include('accounts.urls')),
     path('', include('main.urls')),
+    path('auth/', include('accounts.urls')),
     path('notifications/', include('notifications.urls')),
-       
-    # path('social-django/', include('social_django.urls', namespace='social')),
-
+   
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+
+# Customize admin site
+admin.site.site_header  =  "Revista"  
+admin.site.site_title  =  "revista site"
+admin.site.index_title  =  "revista admin site"
