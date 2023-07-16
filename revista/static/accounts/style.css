@@ -1,0 +1,31 @@
+.form-wrapper {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+  }
+  
+form {
+  margin: 0;
+  padding: 0;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #1abc9c;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: blue;
+  text-decoration: none;
+}

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+import random
 
 # Create your models here.
 GENDER_CHOICES = {
@@ -18,6 +19,16 @@ class CustomUser(AbstractUser):
         
     def __str__(self):
         return self.username
+    
+    def generate_username(email):
+        username = email.split('@')[0]
+        username = "".join([c for c in username if c.isalpha()])
+       
+        # Check if username exist
+        while CustomUser.objects.filter(username=username).exists():
+            username = "{0}{1}".format(username, random.randint(0, 9))
+       
+        return username
     
 class PasswordResetCode(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

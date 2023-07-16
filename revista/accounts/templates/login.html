@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="form-wrapper">
+	<form method="POST">
+		{% csrf_token %}
+		{{form}}
+		<p>Don't you have an account? <a href="/accounts/register" style="color:blue;">Register here</a></p>      
+		<button type="submit">Login</button>
+	</form>
+</div>
+
+{% endblock content %}

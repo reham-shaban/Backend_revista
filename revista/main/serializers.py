@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from accounts.models import CustomUser
 from .models import Profile, Topic, TopicFollow, Follow
-from accounts.serializers import UserSerializer
+from accounts.api.serializers import UserSerializer
 
 # Profile
 class ProfileSerializer(serializers.ModelSerializer):
