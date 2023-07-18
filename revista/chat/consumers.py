@@ -4,8 +4,8 @@ from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from accounts.models import CustomUser
 from .models import Chat, Message
+from .helper import get_user_from_scope, json_list, message_to_json
 
 # consumers
 class ChatConsumer(AsyncWebsocketConsumer): 
@@ -13,11 +13,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def new_message(self, data):
         # save message to database
         chat_object = await sync_to_async(get_object_or_404)(Chat, id=self.chat_id)
-        message = await sync_to_async(Message.objects.create)(chat=chat_object, author=self.user, content=data['message'])           
+        message = await sync_to_async(Message.objects.create)(chat=chat_object, author=self.user, text=data['text'])
         # send message
         content = {
             'command': 'new_message',
-            'message': self.message_to_json(message)
+            'message': message_to_json(message)
         }
         await self.send_chat_message(content)
            
@@ -28,39 +28,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         messages = messages[:10]  # get the first 10 messages
         content = {
             'command': 'messages',
-            'messages': await self.json_list(messages)
+            'messages': await json_list(messages)
         }
         await self.send_messages(content)
-        
-    async def json_list(self, queryset):
-        result = []
-        async for message in queryset:
-            result.append(await database_sync_to_async(self.message_to_json)(message))
-        return result
-
-    def message_to_json(self, message):
-        return {
-            'id': message.id,
-            'author': message.author.username,
-            'content': message.content,
-            'created_at': str(message.created_at)
-        }
-        
+    
     commands = {
         'fetch_messages' : fetch_messages,
         'new_message' : new_message
     }
-          
-    async def connect(self):           
-        print(self.scope['headers'])
-       # get id from headers
-        id_string = self.scope['headers'][4][1]
-        s = id_string.decode('utf-8')
-        match = re.search(r'\d+',s)
-        id = int(match.group())
-        
-        # get the user object
-        self.user = await sync_to_async(CustomUser.objects.filter(id=id).first)()
+                     
+    async def connect(self):     
+        self.user = await sync_to_async(get_user_from_scope)(self.scope)    
         print(self.user)
         
         if self.user:
@@ -80,7 +58,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
-        print('receive: ' ,text_data)
         data = json.loads(text_data)
         await self.commands[data['command']](self, data)
         

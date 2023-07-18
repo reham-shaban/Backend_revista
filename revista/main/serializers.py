@@ -15,19 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('id', 'user', 'cover_image', 'bio', 'followers_count', 'following_count', 'posts_count', 'created_at', 'updated_at')
         read_only_fields = ['id', 'user', 'followers_count', 'following_count', 'posts_count', 'created_at', 'updated_at']
-          
-    # def update(self, instance, validated_data):
-    #     user_data = validated_data.pop('user', None)
-    #     if user_data:
-    #         user_serializer = UserSerializer(instance.user, data=user_data, partial=True)
-    #         if user_serializer.is_valid():
-    #             user_serializer.save()
-        
-    #     instance.__dict__.update(**validated_data)
-    #     instance.save()
-    #     return instance
-
-          
+            
     def get_followers_count(self, obj):
         followers_count = Follow.objects.filter(followed=obj.id).count()
         return followers_count
