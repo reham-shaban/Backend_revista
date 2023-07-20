@@ -3,7 +3,7 @@ flask
 pillow
 djangorestframework 
 django-rest-knox 
-channels = {extras = ["daphne"]}
+channels = {extras == ["daphne"]}
 google-auth
 django-extensions
 graphviz
@@ -11,5 +11,5 @@ pyparsing
 pydot
 django-filter
 django-cors-headers
-django-phonenumber-field = {extras = ["phonenumbers"]}
+django-phonenumber-field == {extras = ["phonenumbers"]}
 requests
