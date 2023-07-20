@@ -4,7 +4,7 @@ pillow
 djangorestframework 
 django-rest-knox 
 channels
-channels[daphne]
+daphne
 google-auth
 django-extensions
 graphviz
@@ -13,5 +13,5 @@ pydot
 django-filter
 django-cors-headers
 django-phonenumber-field
-django-phonenumber-field[phonenumbers]
+django-phonenumbers
 requests
