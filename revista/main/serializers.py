@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from accounts.models import CustomUser
 from .models import Profile, Topic, TopicFollow, Follow
+from posts.models import Post
+from accounts.models import CustomUser
 from accounts.api.serializers import UserSerializer
 
 # Profile
@@ -25,7 +26,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         return following_count
     
     def get_posts_count(self, obj):
-        return 0
+        posts_count = Post.objects.filter(author=obj.id).count()
+        return posts_count
  
 # same above but has is_following field      
 class VistorProfileSerializer(serializers.ModelSerializer):
@@ -49,7 +51,8 @@ class VistorProfileSerializer(serializers.ModelSerializer):
         return following_count
     
     def get_posts_count(self, obj):
-        return 0
+        posts_count = Post.objects.filter(author=obj.id).count()
+        return posts_count
     
     def check_following(self, obj):
         request = self.context.get('request')

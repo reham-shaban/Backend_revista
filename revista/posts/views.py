@@ -53,7 +53,8 @@ class CommentView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
-        comment = Comment.objects.create(post_id=post_id, author=profile)
+        content = request.data.get('content')
+        comment = Comment.objects.create(post_id=post_id, author=profile, content=content)
         return Response(self.serializer_class(comment).data, status=status.HTTP_201_CREATED)
     def get_queryset(self):
         post_id = self.kwargs['post_id']

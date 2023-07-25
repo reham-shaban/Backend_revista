@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 
 from main.models import Profile, Topic
 
@@ -11,24 +10,21 @@ class Post(models.Model):
     link = models.URLField(blank=True, null=True)
     topics = models.ManyToManyField(Topic)
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
-    likes_count = models.IntegerField(default=0)
-    comments_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.author.user.username}: {self.content}"
+        return f"{self.author.user}: {self.content}"
 
 
 class Point(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='pointed_post')
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='pointed_user')
-    value = models.IntegerField()
+    value = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.value} : {self.post.author.user.username}: {self.post.content}"
+        return f"{self.value} : {self.post.author.user}: {self.post.content}"
 
 
 class Like(models.Model):
@@ -36,6 +32,9 @@ class Like(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='liked_user')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.profile.user} liked {self.post.author.user}'s post"
 
 
 class Comment(models.Model):
@@ -46,7 +45,7 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.content
+        return f"{self.author.user}: {self.content}"
     
 
 class Reply(models.Model):
@@ -57,7 +56,7 @@ class Reply(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.content
+        return f"{self.author.user}: {self.content}"
     
     class Meta:
         verbose_name_plural = "Replies"
@@ -71,3 +70,6 @@ class SavedPost(models.Model):
     
     class Meta:
         unique_together = ('post', 'profile')
+        
+    def __str__(self):
+        return f"{self.post.author.user}: {self.post.content}"
