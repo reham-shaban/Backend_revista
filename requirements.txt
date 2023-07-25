@@ -1,0 +1,10 @@
+django
+pillow
+djangorestframework 
+django-rest-knox 
+channels[daphne]
+google-auth
+django-filter
+django-cors-headers
+django-phonenumber-field[phonenumbers]
+requests

@@ -10,10 +10,6 @@ djangorestframework = "*"
 django-rest-knox = "*"
 channels = {extras = ["daphne"], version = "*"}
 google-auth = "*"
-django-extensions = "*"
-graphviz = "*"
-pyparsing = "*"
-pydot = "*"
 django-filter = "*"
 django-cors-headers = "*"
 django-phonenumber-field = {extras = ["phonenumbers"], version = "*"}
