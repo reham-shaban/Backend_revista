@@ -18,10 +18,12 @@ urlpatterns = [
     path('unlike/<int:pk>/',views.LikeDeleteView.as_view()),
     
     #saved posts
-    #[POST, GET] get list of posts
+    #[GET] get list of posts
     path('saved-posts/',views.SavedPostView.as_view(),name='savedposts'),
+    #[POST]
+    path('save-post/<int:post_id>/',views.SavedPostCreateView.as_view(),name='save'),
     #[GET, DELETE] get a single saved post
-    path('saved-post/<int:post_id>/', views.SavedPostDetailView.as_view(), name='savedpost-detail'),
+    path('saved-posts/<int:saved_post_id>/', views.SavedPostDetailView.as_view(), name='savedpost-detail'),
 ]
 
 
