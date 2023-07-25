@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'channels',
     'django_filters',
     'phonenumber_field',
-    'django_extensions',
     
     # local apps
     'accounts',
@@ -186,8 +185,3 @@ CHANNEL_LAYERS = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
-}
