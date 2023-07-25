@@ -5,4 +5,5 @@ from . import views
 'chat/'
 urlpatterns = [
     path('user/<int:profile_id>/', views.NewChat.as_view()),
+    path('contact/', views.ChatContact.as_view()),
 ]

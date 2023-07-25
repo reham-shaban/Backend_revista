@@ -162,8 +162,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 #EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'reham.shaban2002@gmail.com'
-EMAIL_HOST_PASSWORD = 'jqeevcadwnxnpzel'
+EMAIL_HOST_USER = 'revista021@gmail.com'
+EMAIL_HOST_PASSWORD = 'vkccnjpyqtwnswdt'
 
 # In testing
 CHANNEL_LAYERS = {
