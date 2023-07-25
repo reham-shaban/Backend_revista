@@ -17,7 +17,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.author.user.username}'s post"
+        return f"{self.author.user.username}: {self.content}"
 
 
 class Point(models.Model):
@@ -26,6 +26,9 @@ class Point(models.Model):
     value = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.value} : {self.post.author.user.username}: {self.post.content}"
 
 
 class Like(models.Model):
