@@ -86,14 +86,21 @@ class RegisterAPI(generics.GenericAPIView):
 # Login API
 class LoginAPI(KnoxLoginView):
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = (TokenAuthentication,)
 
     def post(self, request, format=None):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         login(request, user)
-        return super(LoginAPI, self).post(request, format=None)
-    
+        token = AuthToken.objects.create(user)
+        return Response(
+            {
+                'token': token[1],
+                'id': user.id
+            },
+            status=status.HTTP_200_OK
+        )  
     
 # Reset password views
 # 1.take the username and send an email
