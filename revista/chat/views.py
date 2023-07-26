@@ -1,15 +1,15 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 
 from accounts.models import CustomUser
 from main.models import Profile
-from .models import Chat
-from .serializers import ChatSerializer
+from .models import Chat, Message
+from .serializers import ChatContactSerializer, ChatSerializer
 
 # APIs
 # get or create chat throw profile id
@@ -33,12 +33,24 @@ class NewChat(APIView):
 
 # get contact screen
 class ChatContact(generics.ListAPIView):
-    serializer_class = ChatSerializer
+    serializer_class = ChatContactSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        queryset = Chat.objects.all()
+        # Subquery to get the latest message creation time for each chat
+        latest_message_subquery = Message.objects.filter(chat=OuterRef('pk')).order_by('-created_at')
+        latest_message_time = Subquery(latest_message_subquery.values('created_at')[:1])
+        
+        queryset = Chat.objects.annotate(latest_message_time=latest_message_time)
         user = self.request.user
         queryset = queryset.filter(Q(user1=user) | Q(user2=user))
+        queryset = queryset.order_by('-latest_message_time')
         return queryset
+
+# list all chats
+class ChatView(generics.ListAPIView):
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
