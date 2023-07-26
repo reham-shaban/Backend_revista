@@ -48,3 +48,17 @@ class ChatContactSerializer(serializers.ModelSerializer):
             return None
         else:
             return MessageSerializer(message).data
+        
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        user_data = data.get('user', None)
+        
+        if user_data and user_data['profile_image']:
+            # Get the request object from the context
+            request = self.context.get('request', None)
+
+            # Generate the absolute URL for the profile_image field
+            profile_image_url = request.build_absolute_uri(user_data['profile_image'])
+            user_data['profile_image'] = profile_image_url
+
+        return data

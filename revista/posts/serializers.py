@@ -18,13 +18,13 @@ class AuthorSerializer(serializers.ModelSerializer):
         
 class PostSerializer(serializers.ModelSerializer):
     author=AuthorSerializer(read_only=True)
-    topics=TopicSerializer(many=True,read_only=True)
+    topics_details = TopicSerializer(source='topics' ,many=True, read_only=True)
     likes_count = serializers.SerializerMethodField(method_name='get_likes_count')
     comments_count = serializers.SerializerMethodField(method_name='get_comments_count')
     
     class Meta:
         model = Post
-        fields = ('id', 'author', 'content', 'link', 'topics', 'image', 'likes_count', 'comments_count', 'created_at', 'updated_at')
+        fields = ('id', 'author', 'content', 'link', 'topics', 'topics_details', 'image', 'likes_count', 'comments_count', 'created_at', 'updated_at')
     
     def get_likes_count(self, obj):
         likes_count = Like.objects.filter(profile=obj.id).count()
