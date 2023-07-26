@@ -20,6 +20,7 @@ class Chat(models.Model):
     user1 = models.ForeignKey(CustomUser, related_name='user1', null=True, on_delete=models.SET_NULL)
     user2 = models.ForeignKey(CustomUser, related_name='user2', null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f'{self.user1} - {self.user2}'
