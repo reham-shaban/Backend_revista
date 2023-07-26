@@ -50,7 +50,7 @@ class CommentView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]    
-    def create(self, request, *args, **kwargs):
+    def perform_create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
         content = request.data.get('content')
@@ -77,7 +77,7 @@ class LikeView(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
-    def create(self, request, *args, **kwargs):
+    def perform_create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
         like = Like.objects.create(post_id=post_id, profile=profile)
@@ -113,7 +113,7 @@ class SavedPostCreateView(generics.CreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
-    def create(self, request, *args, **kwargs):
+    def perform_create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
         saved = SavedPost.objects.create(post_id=post_id, profile=profile)
