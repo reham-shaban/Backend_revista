@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Like, Comment, SavedPost,Like
+from .models import Post, Like, Comment,Reply, SavedPost,Like
 from accounts.models import CustomUser
 from main.models import Profile
 from main.serializers import TopicSerializer
@@ -18,14 +18,14 @@ class AuthorSerializer(serializers.ModelSerializer):
         
 class PostSerializer(serializers.ModelSerializer):
     author=AuthorSerializer(read_only=True)
-    topics=TopicSerializer(read_only=True)
+    topics=TopicSerializer(many=True,read_only=True)
     likes_count = serializers.SerializerMethodField(method_name='get_likes_count')
     comments_count = serializers.SerializerMethodField(method_name='get_comments_count')
     
     class Meta:
         model = Post
         fields = ('id', 'author', 'content', 'link', 'topics', 'image', 'likes_count', 'comments_count', 'created_at', 'updated_at')
-        
+    
     def get_likes_count(self, obj):
         likes_count = Like.objects.filter(profile=obj.id).count()
         return likes_count
@@ -46,6 +46,13 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model= Comment
         fields= ('id', 'post', 'author', 'content', 'created_at', 'updated_at')
+
+# Reply
+class ReplySerializer(serializers.ModelSerializer):
+    comment=CommentSerializer(read_only=True)
+    class Meta:
+        model = Reply
+        fields = ('id', 'comment', 'author', 'content', 'created_at', 'updated_at')
 
 # Saved Post
 class SavedPostSerializer(serializers.ModelSerializer):

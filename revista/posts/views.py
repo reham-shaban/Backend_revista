@@ -1,8 +1,8 @@
 from django.db.models import Q, Sum
-from .models import Post, Comment, SavedPost,Like
+from .models import Post, Comment, Reply, SavedPost,Like
 from main.models import Follow, TopicFollow
 from rest_framework import generics
-from .serializers import PostSerializer, CommentSerializer,SavedPostSerializer,LikeSerializer
+from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer
 from rest_framework.permissions import IsAuthenticated
 from knox.auth import TokenAuthentication
 from django.http import Http404
@@ -49,25 +49,51 @@ class CommentView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]    
+    permission_classes = [IsAuthenticated] 
+
     def create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
         content = request.data.get('content')
         comment = Comment.objects.create(post_id=post_id, author=profile, content=content)
         return Response(self.serializer_class(comment).data, status=status.HTTP_201_CREATED)
+
     def get_queryset(self):
         post_id = self.kwargs['post_id']
         queryset=Comment.objects.filter(post__id=post_id)
         return queryset
-    
-    
+
+
 #comment [GET ,PUT, PATCH, DELETE] get a single comment
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+class ReplyView(generics.ListCreateAPIView):
+    queryset=Comment.objects.all()
+    serializer_class=ReplySerializer
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        comment_id = self.kwargs['comment_id']
+        profile = self.request.user.profile
+        content = request.data.get('content')
+        reply = Reply.objects.create(comment_id=comment_id, author=profile, content=content)
+        return Response(self.serializer_class(reply).data, status=status.HTTP_201_CREATED)
+
+    def get_queryset(self):
+        comment_id=self.kwargs['comment_id']
+        queryset=Reply.objects.filter(comment__id=comment_id)
+        return queryset
+
+class ReplyDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset=Comment.objects.all()
+    serializer_class=ReplySerializer
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
 
 #Like Cruds
 #Create Likes
@@ -92,7 +118,8 @@ class LikeDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 #SavedPost CRUDs
-class SavedPostView(generics.ListCreateAPIView):
+#[GET] list saved posts
+class SavedPostView(generics.ListAPIView):
     queryset = SavedPost.objects.all()
     serializer_class = SavedPostSerializer
     authentication_classes = [TokenAuthentication]
@@ -105,6 +132,12 @@ class SavedPostView(generics.ListCreateAPIView):
             return SavedPost.objects.filter(profile=profile)
         else:
             return SavedPost.objects.none()
+#[POST] save a post
+class SavedPostCreateView(generics.CreateAPIView):
+    queryset = SavedPost.objects.all()
+    serializer_class = SavedPostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
@@ -112,20 +145,21 @@ class SavedPostView(generics.ListCreateAPIView):
         saved = SavedPost.objects.create(post_id=post_id, profile=profile)
         return Response(self.serializer_class(saved).data, status=status.HTTP_201_CREATED)
 
-class SavedPostDetailView(generics.RetrieveDestroyAPIView):
+#[PUT,PATCH,DELETE,GET] get a single saved post
+class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SavedPost.objects.all()
     serializer_class = SavedPostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        # Get the profile ID and post ID from the URL parameters
+        # Get the profile ID and saved_post_id from the URL parameters
         profile = self.request.user.profile
-        post_id = self.kwargs['post_id']
+        saved_post_id = self.kwargs['saved_post_id']
 
-        # Retrieve the specific saved post based on the profile ID and post ID
+        # Retrieve the specific saved post based on the profile ID and saved_post_id
         try:
-            saved_post = SavedPost.objects.get(profile=profile, post__id=post_id)
+            saved_post = SavedPost.objects.get(profile=profile, id=saved_post_id)
         except SavedPost.DoesNotExist:
             raise Http404("Saved post does not exist")
 
