@@ -1,8 +1,8 @@
 from django.db.models import Q, Sum
-from .models import Post, Comment, SavedPost,Like
+from .models import Post, Comment, Reply, SavedPost,Like
 from main.models import Follow, TopicFollow
 from rest_framework import generics
-from .serializers import PostSerializer, CommentSerializer,SavedPostSerializer,LikeSerializer
+from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer
 from rest_framework.permissions import IsAuthenticated
 from knox.auth import TokenAuthentication
 from django.http import Http404
@@ -49,25 +49,51 @@ class CommentView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]    
+    permission_classes = [IsAuthenticated] 
+
     def perform_create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
         content = request.data.get('content')
         comment = Comment.objects.create(post_id=post_id, author=profile, content=content)
         return Response(self.serializer_class(comment).data, status=status.HTTP_201_CREATED)
+
     def get_queryset(self):
         post_id = self.kwargs['post_id']
         queryset=Comment.objects.filter(post__id=post_id)
         return queryset
-    
-    
+
+
 #comment [GET ,PUT, PATCH, DELETE] get a single comment
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+class ReplyView(generics.ListCreateAPIView):
+    queryset=Comment.objects.all()
+    serializer_class=ReplySerializer
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
+
+    def perform_create(self, request, *args, **kwargs):
+        comment_id = self.kwargs['comment_id']
+        profile = self.request.user.profile
+        content = request.data.get('content')
+        reply = Reply.objects.create(comment_id=comment_id, author=profile, content=content)
+        return Response(self.serializer_class(reply).data, status=status.HTTP_201_CREATED)
+
+    def get_queryset(self):
+        comment_id=self.kwargs['comment_id']
+        queryset=Reply.objects.filter(comment__id=comment_id)
+        return queryset
+
+class ReplyDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset=Comment.objects.all()
+    serializer_class=ReplySerializer
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
 
 #Like Cruds
 #Create Likes

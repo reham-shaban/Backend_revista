@@ -11,7 +11,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.SerializerMethodField(method_name='get_followers_count')
     following_count = serializers.SerializerMethodField(method_name='get_following_count')
     posts_count = serializers.SerializerMethodField(method_name='get_posts_count')
-       
+    
     class Meta:
         model = Profile
         fields = ('id', 'user', 'cover_image', 'bio', 'followers_count', 'following_count', 'posts_count', 'created_at', 'updated_at')

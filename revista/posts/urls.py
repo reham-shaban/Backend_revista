@@ -13,6 +13,12 @@ urlpatterns = [
         #[GET ,PUT, PATCH, DELETE]
     path('comment/<int:pk>/', views.CommentDetailView.as_view()),
     
+    #replies
+        #both create and get a list of replies
+    path('replies/<int:comment_id>/',views.ReplyView.as_view(),name='replies'),
+        #[GET ,PUT, PATCH, DELETE]
+    path('reply/<int:pk>/',views.ReplyDetailView.as_view(),),
+    
     #Like
     path('like/<int:post_id>/',views.LikeView.as_view()),
     path('unlike/<int:pk>/',views.LikeDeleteView.as_view()),
