@@ -5,12 +5,13 @@ from posts.serializers import UserSerializer
 
 # serializers
 
+# Used in chat contact for last message
 class MessageSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source='author.username', read_only=True)
     
     class Meta:
         model = Message
-        fields = ['id', 'author', 'type', 'text', 'image', 'voice_record', 'reaction', 'reply', 'created_at', 'updated_at']
+        fields = ['id', 'author_username', 'type', 'text', 'created_at']
     
 class ChatSerializer(serializers.ModelSerializer):
     chat = serializers.SerializerMethodField(method_name='get_chat')
