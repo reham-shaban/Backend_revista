@@ -43,6 +43,18 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+
+#Profile_post
+class TimelineView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        profile =self.request.user.profile
+        queryset = Post.objects.all()
+        querset=queryset.filter(author=profile)
+        return querset
+
 #Comment Cruds
 #list of comments and creating a comment [ GET, POST]
 class CommentView(generics.ListCreateAPIView):
@@ -72,7 +84,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 class ReplyView(generics.ListCreateAPIView):
-    queryset=Comment.objects.all()
+    queryset=Reply.objects.all()
     serializer_class=ReplySerializer
     authentication_classes=[TokenAuthentication]
     permission_classes=[IsAuthenticated]
@@ -90,7 +102,7 @@ class ReplyView(generics.ListCreateAPIView):
         return queryset
 
 class ReplyDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Comment.objects.all()
+    queryset=Reply.objects.all()
     serializer_class=ReplySerializer
     authentication_classes=[TokenAuthentication]
     permission_classes=[IsAuthenticated]
