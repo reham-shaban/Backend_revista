@@ -50,6 +50,18 @@ class PostView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
     
+
+#Profile_post
+class TimelineView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        profile =self.request.user.profile
+        queryset = Post.objects.all()
+        querset=queryset.filter(author=profile)
+        return querset
+
 #Comment Cruds
 #list of comments and creating a comment [ GET, POST]
 class CommentView(generics.ListCreateAPIView):

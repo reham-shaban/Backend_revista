@@ -7,6 +7,8 @@ urlpatterns = [
     #[GET ,PUT, PATCH, DELETE]
     path('post/<int:pk>/', views.PostDetailView.as_view()),
     path('all/', views.PostView.as_view()),
+    #GET posts in profile
+    path('timeline/',views.TimelineView.as_view()),
     
     #comments
         #both create and get a list of comments
