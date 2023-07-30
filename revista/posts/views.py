@@ -1,13 +1,17 @@
 from django.db.models import Q, Sum
 from .models import Post, Comment, Reply, SavedPost,Like
 from main.models import Follow, TopicFollow
+from accounts.models import CustomUser
 from rest_framework import generics
-from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer
+from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import CustomUserFilter
+
 
 #Posts CRUDs
 #posts [POST, GET]get a list of posts
@@ -184,6 +188,28 @@ class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
             saved_post = SavedPost.objects.get(profile=profile, id=saved_post_id)
         except SavedPost.DoesNotExist:
             raise Http404("Saved post does not exist")
-
         return saved_post
 
+
+
+class DiscoverView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        topic_id = self.kwargs.get('topic_id')
+        queryset = Post.objects.all()
+        queryset=queryset.filter(topics__id=topic_id)
+        queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
+        queryset = queryset.order_by('-total_points')
+        return queryset
+
+
+class SearchView(generics.ListAPIView):
+    queryset=CustomUser.objects.all()
+    serializer_class=UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CustomUserFilter
