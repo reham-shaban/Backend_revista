@@ -39,6 +39,9 @@ urlpatterns = [
     
     #Search API
     path('search/',views.SearchView.as_view(),name='search-users'),
+    
+    #General API
+    path('general/',views.GeneralView.as_view(),name='general-posts'),
 ]
 
 
