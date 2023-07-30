@@ -28,13 +28,20 @@ def increment_point_value_per_comment(sender, instance, created, **kwargs):
 # Decrease 1 point per like deletion
 @receiver(post_delete, sender=Like)
 def decrement_point_value_for_like_deletion(sender, instance, **kwargs):
-    point = Point.objects.get(post=instance.post)
-    point.value -= 1
-    point.save()
+    try:
+        point = Point.objects.get(post=instance.post)
+        point.value -= 1
+        point.save()
+    except Point.DoesNotExist:
+        pass
 
 # Decrease 3 points per comment deletion
 @receiver(post_delete, sender=Comment)
 def decrement_point_value_for_comment_deletion(sender, instance, **kwargs):
-    point = Point.objects.get(post=instance.post)
-    point.value -= 3
-    point.save()
+    try:
+        point = Point.objects.get(post=instance.post)
+        point.value -= 3
+        point.save()
+    except Point.DoesNotExist:
+        pass
+

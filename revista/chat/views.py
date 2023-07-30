@@ -54,3 +54,10 @@ class ChatView(generics.ListAPIView):
     serializer_class = ChatSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
+    
+# delete chat
+class ChatDeleteView(generics.DestroyAPIView):
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

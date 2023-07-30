@@ -55,7 +55,7 @@ class TopicFollow(models.Model):
         ]
         
     def __str__(self):
-        return f'{self.profile.user.username} {self.topic}'
+        return f'{self.profile.user.username} | {self.topic}'
 
 class Follow(models.Model):
     follower = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='follower')

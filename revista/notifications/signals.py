@@ -171,7 +171,7 @@ def send_notification_on_reply(sender, instance, created, **kwargs):
         # the user how made the reply DATA
         reply_author = instance.author.user
         username = reply_author.username
-        detail = f'{username} replied on your comment'
+        detail = f'{username} replied to your comment'
         profile_image = reply_author.profile_image
          
         # the comment author DATA
@@ -257,4 +257,3 @@ def message_notification(sender, instance, created, **kwargs):
             async_to_sync(channel_layer.group_send)(group_name, event)
         except Exception as e:
             print('Exception in signals: ', e)
- 
