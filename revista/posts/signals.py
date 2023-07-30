@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import Post, Point, Like, Comment
+from .models import Post, Point, Like, Comment, Reply
 
 # Creat point object on creating a new post
 @receiver(post_save, sender=Post)
@@ -24,7 +24,15 @@ def increment_point_value_per_comment(sender, instance, created, **kwargs):
         point, created = Point.objects.get_or_create(post=instance.post)
         point.value += 3
         point.save()
-        
+
+#adding 4 points per reply
+@receiver(post_save, sender=Reply)
+def increment_point_vlaue_per_reply(sender, instance, created, **kwargs):
+    if created:
+        point, created = Point.objects.get_or_create(post=instance.post)
+        point.value += 4
+        point.save()
+
 # Decrease 1 point per like deletion
 @receiver(post_delete, sender=Like)
 def decrement_point_value_for_like_deletion(sender, instance, **kwargs):
@@ -37,4 +45,11 @@ def decrement_point_value_for_like_deletion(sender, instance, **kwargs):
 def decrement_point_value_for_comment_deletion(sender, instance, **kwargs):
     point = Point.objects.get(post=instance.post)
     point.value -= 3
+    point.save()
+
+# Decrease 3 points per reply deletion
+@receiver(post_delete, sender=Reply)
+def decrement_point_value_for_reply_deletion(sender, instance, **kwargs):
+    point = Point.objects.get(post=instance.post)
+    point.value -= 4
     point.save()

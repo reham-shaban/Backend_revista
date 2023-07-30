@@ -177,3 +177,14 @@ class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         return saved_post
 
+
+
+class DiscoverView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset():
+        queryset = Post.objects.all()
+        return queryset
+
