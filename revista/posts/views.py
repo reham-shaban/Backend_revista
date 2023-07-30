@@ -184,7 +184,6 @@ class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
             saved_post = SavedPost.objects.get(profile=profile, id=saved_post_id)
         except SavedPost.DoesNotExist:
             raise Http404("Saved post does not exist")
-
         return saved_post
 
 
@@ -194,7 +193,11 @@ class DiscoverView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get_queryset():
+    def get_queryset(self):
+        topic_id = self.kwargs.get('topic_id')
         queryset = Post.objects.all()
+        queryset=queryset.filter(topics__id=topic_id)
+        queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
+        queryset = queryset.order_by('-total_points')
         return queryset
 
