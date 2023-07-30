@@ -34,8 +34,11 @@ urlpatterns = [
     #[GET, DELETE] get a single saved post
     path('saved-post/<int:saved_post_id>/', views.SavedPostDetailView.as_view(), name='savedpost-detail'),
     
-    #Discover api
+    #Discover API
     path('discover/<int:topic_id>/',views.DiscoverView.as_view(),name='discover-topic'),
+    
+    #Search API
+    path('search/',views.SearchView.as_view(),name='search-users'),
 ]
 
 
