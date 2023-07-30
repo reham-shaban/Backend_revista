@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.HomePostView.as_view(),name='home'),
     #[GET ,PUT, PATCH, DELETE]
     path('post/<int:pk>/', views.PostDetailView.as_view()),
+    path('all/', views.PostView.as_view()),
     
     #comments
         #both create and get a list of comments

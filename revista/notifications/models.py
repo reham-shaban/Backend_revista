@@ -5,10 +5,9 @@ from django.conf import settings
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     profile_image = models.ImageField(upload_to='notifications/', blank=True, null=True)
-    type = models.CharField(max_length=25)
+    type = models.CharField(max_length=25) # (Follow, Post, Reply, Chat)
     detail = models.TextField()
-    profile_id = models.IntegerField(blank=True, null=True)
-    post_id = models.IntegerField(blank=True, null=True)
+    forward_id = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

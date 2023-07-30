@@ -2,23 +2,17 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 
 from accounts.models import CustomUser
+from chat.helper import get_user_from_scope
 import re, json
 
 # Consumers
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):     
-        # get id from headers
-        id_string = self.scope['headers'][6][1]
-        s = id_string.decode('utf-8')
-        match = re.search(r'\d+',s)
-        id = int(match.group())
-        
-        # get the user object
-        self.user = await sync_to_async(CustomUser.objects.filter(id=id).first)()
+        self.user = await sync_to_async(get_user_from_scope)(self.scope)    
         print(self.user)
       
         if self.user:
-            self.GROUP_NAME = f'user-notifications-{id}'
+            self.GROUP_NAME = f'user-notifications-{self.user.id}'
             # Add the consumer to the user notifications group
             await self.channel_layer.group_add(self.GROUP_NAME, self.channel_name)
             # Accept the WebSocket connection

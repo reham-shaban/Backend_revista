@@ -47,6 +47,8 @@ def get_user_from_scope(scope):
     
     # get the user object
     user = CustomUser.objects.filter(id=id).first()
+    if user is None:
+        print('Wrong user id')
     return user
     
 def get_url_from_scope(scope):
