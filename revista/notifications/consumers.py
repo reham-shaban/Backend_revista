@@ -30,7 +30,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
        # Remove the consumer from the user notifications group
         await self.channel_layer.group_discard(self.GROUP_NAME, self.channel_name)
 
-    async def follow_notification(self, event):
+    async def notification(self, event):
         try:
             await self.send(text_data = json.dumps({'text': event['text']}) )                       
         except Exception as e:
