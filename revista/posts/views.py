@@ -3,7 +3,7 @@ from .models import Post, Comment, Reply, SavedPost,Like
 from main.models import Follow, TopicFollow
 from rest_framework import generics
 from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 from django.http import Http404
 from rest_framework import status
@@ -43,6 +43,13 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+# admin get all posts
+class PostView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
+    
 
 #Profile_post
 class TimelineView(generics.ListAPIView):
@@ -93,6 +100,9 @@ class ReplyView(generics.ListCreateAPIView):
         comment_id = self.kwargs['comment_id']
         profile = self.request.user.profile
         content = request.data.get('content')
+        if not content:
+            return Response('content field required', status=status.HTTP_400_BAD_REQUEST)
+        
         reply = Reply.objects.create(comment_id=comment_id, author=profile, content=content)
         return Response(self.serializer_class(reply).data, status=status.HTTP_201_CREATED)
 

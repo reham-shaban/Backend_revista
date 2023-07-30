@@ -39,7 +39,7 @@ from accounts.models import CustomUser
 # user object
 def get_user_from_scope(scope):
     # get id from headers
-    id_string = scope['headers'][4][1]
+    id_string = scope['headers'][6][1]
     s = id_string.decode('utf-8')
     match = re.search(r'\d+',s)
     id = int(match.group())
@@ -47,6 +47,8 @@ def get_user_from_scope(scope):
     
     # get the user object
     user = CustomUser.objects.filter(id=id).first()
+    if user is None:
+        print('Wrong user id')
     return user
     
 def get_url_from_scope(scope):
