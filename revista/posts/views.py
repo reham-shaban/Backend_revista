@@ -41,17 +41,6 @@ class HomePostView(generics.ListCreateAPIView):
         profile = user.profile
         serializer.save(author=profile)
         
-
-class GeneralView(generics.ListAPIView):
-    serializer_class = PostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        queryset = Post.objects.all()
-        queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
-        queryset = queryset.order_by('-total_points','-created_at')
-        return queryset
-
 # single post [GET ,PUT, PATCH, DELETE]
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
@@ -102,6 +91,16 @@ class DiscoverView(generics.ListAPIView):
         queryset=queryset.filter(topics__id=topic_id)
         queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
         queryset = queryset.order_by('-total_points')
+        return queryset
+
+class GeneralView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
+        queryset = queryset.order_by('-total_points','-created_at')
         return queryset
 
 class SearchView(generics.ListAPIView):
