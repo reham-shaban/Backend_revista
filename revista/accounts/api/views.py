@@ -97,10 +97,11 @@ class LoginAPI(KnoxLoginView):
         return Response(
             {
                 'token': token[1],
-                'id': user.id
+                'id': user.id,
+                'profile_id': user.profile.id
             },
             status=status.HTTP_200_OK
-        )  
+        )
     
 # Reset password views
 # 1.take the username and send an email
