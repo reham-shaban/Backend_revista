@@ -213,63 +213,6 @@ def send_notification_on_reply(sender, instance, created, **kwargs):
         except Exception as e:
             print('Exception in signals: ', e)            
 
-# post mention
-@receiver(post_save, sender=Post)
-def create_mentions_notification(sender, instance, created, **kwargs):
-    if created:
-        getPostBody = instance.content
-        mentions = re.findall(r'@(\S+)', getPostBody)
-        mentioning_user=instance.author.user.username
-        if mentions:
-            for mention in mentions:
-                try:
-                    mentioned_user = CustomUser.objects.get(username=mention)
-                    Notification.objects.create(
-                        user=mentioned_user,
-                        type="Mention",
-                        detail=f"{mentioning_user} mentioned you in a post",
-                    )
-                except CustomUser.DoesNotExist:
-                    print(f"No User Found with mentioned username {mention} in comment {instance.content}")
-
-# comment mention
-@receiver(post_save, sender=Comment)
-def create_mentions_notification(sender, instance, created, **kwargs):
-    if created:
-        getCommentBody = instance.content
-        mentions = re.findall(r'@(\S+)', getCommentBody)
-        mentioning_user=instance.author.user.username
-        if mentions:
-            for mention in mentions:
-                try:
-                    mentioned_user = CustomUser.objects.get(username=mention)
-                    Notification.objects.create(
-                        user=mentioned_user,
-                        type="Mention",
-                        detail=f"{mentioning_user} mentioned you in a comment",
-                    )
-                except CustomUser.DoesNotExist:
-                    print(f"No User Found with mentioned username {mention} in comment {instance.content}")
-
-
-# Reply mention
-@receiver(post_save, sender=Reply)
-def create_mentions_notification(sender, instance, created, **kwargs):
-    if created:
-        getCommentBody = instance.content
-        mentions = re.findall(r'@(\S+)', getCommentBody)
-        mentioning_user=instance.author.user.username
-        if mentions:
-            for mention in mentions:
-                try:
-                    mentioned_user = CustomUser.objects.get(username=mention)
-                    Notification.objects.create(
-                        user=mentioned_user,
-                        type="Mention",
-                        detail=f"{mentioning_user} mentioned you in a comment",
-                    )
-                except CustomUser.DoesNotExist:
-                    print(f"No User Found with mentioned username {mention} in comment {instance.content}")
 
 # Chat   
 @receiver(post_save, sender=Message)
@@ -318,3 +261,68 @@ def message_notification(sender, instance, created, **kwargs):
             async_to_sync(channel_layer.group_send)(group_name, event)
         except Exception as e:
             print('Exception in signals: ', e)
+
+# post mention
+@receiver(post_save, sender=Post)
+def create_mentions_notification_on_post(sender, instance, created, **kwargs):
+    if created:
+        getPostBody = instance.content
+        mentions = re.findall(r'@(\S+)', getPostBody)
+        mentioning_user=instance.author.user.username
+        
+        if mentions:
+            for mention in mentions:
+                try:
+                    mentioned_user = CustomUser.objects.get(username=mention)
+                    Notification.objects.create(
+                        user=mentioned_user,
+                        type="Mention",
+                        detail=f"{mentioning_user} mentioned you in a post",
+                        forward_id = instance.id,
+                        profile_image = instance.author.user.profile_image
+                    )
+                except CustomUser.DoesNotExist:
+                    print(f"No User Found with mentioned username {mention} in comment {instance.content}")
+
+# comment mention
+@receiver(post_save, sender=Comment)
+def create_mentions_notification_on_comment(sender, instance, created, **kwargs):
+    if created:
+        getCommentBody = instance.content
+        mentions = re.findall(r'@(\S+)', getCommentBody)
+        mentioning_user=instance.author.user.username
+        if mentions:
+            for mention in mentions:
+                try:
+                    mentioned_user = CustomUser.objects.get(username=mention)
+                    Notification.objects.create(
+                        user=mentioned_user,
+                        type="Mention",
+                        detail=f"{mentioning_user} mentioned you in a comment",
+                        forward_id = instance.post.id,
+                        profile_image = instance.author.user.profile_image
+                    )
+                except CustomUser.DoesNotExist:
+                    print(f"No User Found with mentioned username {mention} in comment {instance.content}")
+
+
+# Reply mention
+@receiver(post_save, sender=Reply)
+def create_mentions_notification_on_reply(sender, instance, created, **kwargs):
+    if created:
+        getCommentBody = instance.content
+        mentions = re.findall(r'@(\S+)', getCommentBody)
+        mentioning_user=instance.author.user.username
+        if mentions:
+            for mention in mentions:
+                try:
+                    mentioned_user = CustomUser.objects.get(username=mention)
+                    Notification.objects.create(
+                        user=mentioned_user,
+                        type="Mention",
+                        detail=f"{mentioning_user} mentioned you in a comment",
+                        forward_id = instance.comment.id,
+                        profile_image = instance.author.user.profile_image
+                    )
+                except CustomUser.DoesNotExist:
+                    print(f"No User Found with mentioned username {mention} in comment {instance.content}")
