@@ -29,7 +29,7 @@ def increment_point_value_per_comment(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Reply)
 def increment_point_vlaue_per_reply(sender, instance, created, **kwargs):
     if created:
-        point, created = Point.objects.get_or_create(post=instance.post)
+        point, created = Point.objects.get_or_create(post=instance.comment.post)
         point.value += 4
         point.save()
 
@@ -55,9 +55,9 @@ def decrement_point_value_for_comment_deletion(sender, instance, **kwargs):
 
 # Decrease 4 points per reply deletion
 @receiver(post_delete, sender=Reply)
-def decrement_point_value_for_comment_deletion(sender, instance, **kwargs):
+def decrement_point_value_for_reply_deletion(sender, instance, **kwargs):
     try:
-        point = Point.objects.get(post=instance.post)
+        point = Point.objects.get(post=instance.comment.post)
         point.value -= 4
         point.save()
     except Point.DoesNotExist:

@@ -17,7 +17,7 @@ class Command(BaseCommand):
                 author=random.choice(Profile.objects.all()),
                 content=fake.text(),
                 link=fake.url(),
-                image=fake.image_url(),
+                image='\post_images\hyakkimaru.jpg',
             )
             # Add random topics to the post
             post.topics.set(Topic.objects.order_by('?')[:random.randint(1, 3)])
