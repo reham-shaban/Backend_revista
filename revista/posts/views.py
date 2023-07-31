@@ -13,6 +13,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CustomUserFilter
 
+
+
 # Post 
 # [POST]: create post, [GET]: posts list in home
 class HomePostView(generics.ListCreateAPIView):

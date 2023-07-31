@@ -30,7 +30,7 @@ urlpatterns = [
     path('saved-posts/',views.SavedPostView.as_view(),name='savedposts'),
     path('save-post/<int:post_id>/',views.SavedPostCreateView.as_view(),name='save'),
     path('saved-post/<int:saved_post_id>/', views.SavedPostDetailView.as_view(), name='savedpost-detail'),
-     
+
 ]
 
 
