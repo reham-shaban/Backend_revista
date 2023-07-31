@@ -1,4 +1,5 @@
 from django.db.models import Q, Sum
+from django.db import IntegrityError
 from .models import Post, Comment, Reply, SavedPost,Like
 from main.models import Follow, TopicFollow
 from accounts.models import CustomUser
@@ -12,10 +13,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CustomUserFilter
 
-
-#Posts CRUDs
-#posts [POST, GET]get a list of posts
-# Home
+# Post 
+# [POST]: create post, [GET]: posts list in home
 class HomePostView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
@@ -26,12 +25,14 @@ class HomePostView(generics.ListCreateAPIView):
         queryset = Post.objects.all()
         topics_followed = TopicFollow.objects.filter(profile=profile)
         followings = Follow.objects.filter(follower=profile).values('followed__id')
+        # filter queryset based on topics & users followed
         queryset = queryset.filter(Q(topics__in=topics_followed.values('topic')) | Q(author__id__in=followings))
         
         # Annotate the queryset with the total points for each post
         queryset = queryset.annotate(
             total_points=Sum('pointed_post__value')
         )
+        # order queryset based on points
         queryset = queryset.order_by('-total_points')
         return queryset
     
@@ -40,7 +41,7 @@ class HomePostView(generics.ListCreateAPIView):
         profile = user.profile
         serializer.save(author=profile)
 
-#post [GET ,PUT, PATCH, DELETE]
+# single post [GET ,PUT, PATCH, DELETE]
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -54,20 +55,55 @@ class PostView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
     
-
-#Profile_post
-class TimelineView(generics.ListAPIView):
+# my profile posts
+class MyTimeLineView(generics.ListAPIView):
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
     def get_queryset(self):
         profile =self.request.user.profile
         queryset = Post.objects.all()
         querset=queryset.filter(author=profile)
         return querset
+    
+# vistor profile posts
+class TimeLineView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        profile_id = self.kwargs['profile_id']
+        queryset = Post.objects.all()
+        querset = queryset.filter(author_id=profile_id)
+        return querset
 
-#Comment Cruds
-#list of comments and creating a comment [ GET, POST]
+# Discover Page
+class DiscoverView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        topic_id = self.kwargs.get('topic_id')
+        queryset = Post.objects.all()
+        queryset=queryset.filter(topics__id=topic_id)
+        queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
+        queryset = queryset.order_by('-total_points')
+        return queryset
+
+class SearchView(generics.ListAPIView):
+    queryset=CustomUser.objects.all()
+    serializer_class=UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CustomUserFilter
+
+
+# Comment
+# [POST]: create comment, [GET]: comments list for post_id
 class CommentView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -86,14 +122,16 @@ class CommentView(generics.ListCreateAPIView):
         queryset=Comment.objects.filter(post__id=post_id)
         return queryset
 
-
-#comment [GET ,PUT, PATCH, DELETE] get a single comment
+# single comment [GET ,PUT, PATCH, DELETE]
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+
+# Reply
+# [POST]: create reply, [GET]: replies list for comment_id
 class ReplyView(generics.ListCreateAPIView):
     queryset=Reply.objects.all()
     serializer_class=ReplySerializer
@@ -115,14 +153,16 @@ class ReplyView(generics.ListCreateAPIView):
         queryset=Reply.objects.filter(comment__id=comment_id)
         return queryset
 
+# single replies [GET ,PUT, PATCH, DELETE]
 class ReplyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset=Reply.objects.all()
     serializer_class=ReplySerializer
     authentication_classes=[TokenAuthentication]
     permission_classes=[IsAuthenticated]
 
-#Like Cruds
-#Create Likes
+
+# Like 
+# [POST, GET]
 class LikeView(generics.ListCreateAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
@@ -135,16 +175,16 @@ class LikeView(generics.ListCreateAPIView):
         like = Like.objects.create(post_id=post_id, profile=profile)
         return Response(self.serializer_class(like).data, status=status.HTTP_201_CREATED)
     
-
-#Delete Likes
+# delete Likes
 class LikeDeleteView(generics.DestroyAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-#SavedPost CRUDs
-#[GET] list saved posts
+
+# Saved Post
+#[GET] list saved posts for auth user
 class SavedPostView(generics.ListAPIView):
     queryset = SavedPost.objects.all()
     serializer_class = SavedPostSerializer
@@ -154,10 +194,9 @@ class SavedPostView(generics.ListAPIView):
     def get_queryset(self):
         # Filter queryset to include only saved posts of the authenticated user
         profile = self.request.user.profile
-        if profile is not None:
-            return SavedPost.objects.filter(profile=profile)
-        else:
-            return SavedPost.objects.none()
+        queryset = SavedPost.objects.filter(profile=profile)
+        return queryset
+        
 #[POST] save a post
 class SavedPostCreateView(generics.CreateAPIView):
     queryset = SavedPost.objects.all()
@@ -168,8 +207,11 @@ class SavedPostCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         profile = self.request.user.profile
-        saved = SavedPost.objects.create(post_id=post_id, profile=profile)
-        return Response(self.serializer_class(saved).data, status=status.HTTP_201_CREATED)
+        try:
+            saved = SavedPost.objects.create(post_id=post_id, profile=profile)
+            return Response(SavedPostSerializer(saved).data, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({"error": "This post is already saved by the user."}, status=status.HTTP_400_BAD_REQUEST)
 
 #[PUT,PATCH,DELETE,GET] get a single saved post
 class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -191,25 +233,3 @@ class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
         return saved_post
 
 
-
-class DiscoverView(generics.ListAPIView):
-    serializer_class = PostSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        topic_id = self.kwargs.get('topic_id')
-        queryset = Post.objects.all()
-        queryset=queryset.filter(topics__id=topic_id)
-        queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
-        queryset = queryset.order_by('-total_points')
-        return queryset
-
-
-class SearchView(generics.ListAPIView):
-    queryset=CustomUser.objects.all()
-    serializer_class=UserSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = CustomUserFilter

@@ -53,3 +53,12 @@ def decrement_point_value_for_comment_deletion(sender, instance, **kwargs):
     except Point.DoesNotExist:
         pass
 
+# Decrease 4 points per reply deletion
+@receiver(post_delete, sender=Reply)
+def decrement_point_value_for_comment_deletion(sender, instance, **kwargs):
+    try:
+        point = Point.objects.get(post=instance.post)
+        point.value -= 4
+        point.save()
+    except Point.DoesNotExist:
+        pass

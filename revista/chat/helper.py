@@ -1,7 +1,8 @@
 '''
 front-end send json:
 {
-    "command" : "fetch_messages"
+    "command" : "fetch_messages",
+    "page_number": 1
 }
 or
 {
@@ -30,6 +31,18 @@ or
     "message_id" : "1",
     "reaction_id" : "1"
 }
+
+pagination
+"page_number": 1
+105-114
+"page_number": 2
+115-150
+"page_number": 3
+151-160
+"page_number": 4
+161-162
+"page_number": 5
+[]
 '''
 
 import re
@@ -39,7 +52,7 @@ from accounts.models import CustomUser
 # user object
 def get_user_from_scope(scope):
     # get id from headers
-    id_string = scope['headers'][6][1]
+    id_string = scope['headers'][4][1]
     s = id_string.decode('utf-8')
     match = re.search(r'\d+',s)
     id = int(match.group())

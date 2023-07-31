@@ -2,43 +2,34 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    #posts [POST, GET]get a list of posts
+    # post
     path('', views.HomePostView.as_view(),name='home'),
-    #[GET ,PUT, PATCH, DELETE]
     path('post/<int:pk>/', views.PostDetailView.as_view()),
     path('all/', views.PostView.as_view()),
-    #GET posts in profile
-    path('timeline/',views.TimelineView.as_view()),
+    path('timeline/',views.MyTimeLineView.as_view()),
+    path('timeline/<int:profile_id>',views.TimeLineView.as_view()),
     
-    #comments
-        #both create and get a list of comments
+    # discover page
+    path('discover/<int:topic_id>/',views.DiscoverView.as_view(),name='discover-topic'),
+    path('search/',views.SearchView.as_view(),name='search-users'),
+    
+    # comment
     path('comments/<int:post_id>/',views.CommentView.as_view(),name='add-comment'),
-        #[GET ,PUT, PATCH, DELETE]
     path('comment/<int:pk>/', views.CommentDetailView.as_view()),
     
-    #replies
-        #both create and get a list of replies
+    # reply
     path('replies/<int:comment_id>/',views.ReplyView.as_view(),name='replies'),
-        #[GET ,PUT, PATCH, DELETE]
     path('reply/<int:pk>/',views.ReplyDetailView.as_view(),),
     
-    #Like
+    # like
     path('like/<int:post_id>/',views.LikeView.as_view()),
     path('unlike/<int:pk>/',views.LikeDeleteView.as_view()),
     
-    #saved posts
-    #[GET] get list of posts
+    # saved posts
     path('saved-posts/',views.SavedPostView.as_view(),name='savedposts'),
-    #[POST]
     path('save-post/<int:post_id>/',views.SavedPostCreateView.as_view(),name='save'),
-    #[GET, DELETE] get a single saved post
     path('saved-post/<int:saved_post_id>/', views.SavedPostDetailView.as_view(), name='savedpost-detail'),
-    
-    #Discover API
-    path('discover/<int:topic_id>/',views.DiscoverView.as_view(),name='discover-topic'),
-    
-    #Search API
-    path('search/',views.SearchView.as_view(),name='search-users'),
+     
 ]
 
 

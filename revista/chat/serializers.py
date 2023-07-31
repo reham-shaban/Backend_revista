@@ -15,13 +15,18 @@ class MessageSerializer(serializers.ModelSerializer):
     
 class ChatSerializer(serializers.ModelSerializer):
     chat = serializers.SerializerMethodField(method_name='get_chat')
+    messages_count = serializers.SerializerMethodField(method_name='get_messages_count')
     
     class Meta:
         model = Chat
-        fields = ['id', 'chat']
+        fields = ['id', 'chat', 'messages_count']
         
     def get_chat(self, obj):
         return f'{obj.user1} - {obj.user2}'
+    
+    def get_messages_count(self, obj):
+        messages_count = Message.objects.filter(chat=obj).count()
+        return messages_count
 
 class ChatContactSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField(method_name='get_user')

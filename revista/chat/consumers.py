@@ -7,6 +7,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .models import Chat, Message
 from .helper import get_user_from_scope, json_list, message_to_json, get_url_from_scope
+ 
+PAGE_SIZE = 10
 
 # consumers
 class ChatConsumer(AsyncWebsocketConsumer): 
@@ -54,13 +56,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'command': 'new_message',
             'message': message_to_json(message, self.url)
         }
-        await self.send_chat_message(content)
-        
+        await self.send_chat_message(content) 
+
     async def fetch_messages(self, data):
-        # fetch messages from database
+        page_number = data['page_number'] 
+        print('page_number: ', page_number)
+        
+        # Calculate the starting and ending index for the messages
+        start_index = (page_number - 1) * PAGE_SIZE
+        end_index = start_index + PAGE_SIZE
+
+        # Fetch messages from database with pagination
         chat_object = await database_sync_to_async(Chat.objects.get)(pk=self.chat_id)
-        messages = await database_sync_to_async(Message.objects.filter)(chat=chat_object)
-        messages = messages[:10]  # get the first 10 messages
+        messages = await database_sync_to_async(Message.objects.filter)(
+            chat=chat_object
+        )
+        messages = messages[start_index:end_index]
+
         content = {
             'command': 'messages',
             'messages': await json_list(messages, self.url)

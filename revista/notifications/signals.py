@@ -245,6 +245,7 @@ def message_notification(sender, instance, created, **kwargs):
             'type': 'notification',
             'text': {
                 'type': 'Chat',
+                'username': sender.username,
                 'forward_id': chat.id,
                 'profile_image': profile_image.url,
                 'detail' : detail,

@@ -9,7 +9,7 @@ from knox.auth import TokenAuthentication
 from accounts.models import CustomUser
 from main.models import Profile
 from .models import Chat, Message
-from .serializers import ChatContactSerializer, ChatSerializer
+from .serializers import ChatContactSerializer, ChatSerializer, MessageSerializer
 
 # APIs
 # get or create chat throw profile id
@@ -61,3 +61,15 @@ class ChatDeleteView(generics.DestroyAPIView):
     serializer_class = ChatSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
+# get all messages from chat
+class MessagesView(generics.ListAPIView):
+    serializer_class = MessageSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        chat_id = self.kwargs['chat_id']
+        queryset = Message.objects.all()
+        queryset = queryset.filter(chat_id=chat_id)
+        return queryset
