@@ -53,12 +53,14 @@ class LikeSerializer(serializers.ModelSerializer):
 
 # Comment
 class CommentSerializer(serializers.ModelSerializer):
+    author=AuthorSerializer(read_only=True)
     class Meta:
         model= Comment
-        fields= ('id', 'post', 'author', 'content', 'replies', 'created_at', 'updated_at')
+        fields= ('id', 'post', 'author', 'content',  'created_at', 'updated_at')
 
 # Reply
 class ReplySerializer(serializers.ModelSerializer):
+    author=AuthorSerializer(read_only=True)
     comment=CommentSerializer(read_only=True)
     class Meta:
         model = Reply
