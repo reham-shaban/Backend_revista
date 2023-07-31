@@ -66,6 +66,15 @@ class ReplySerializer(serializers.ModelSerializer):
 
 # Saved Post
 class SavedPostSerializer(serializers.ModelSerializer):
+    post = PostSerializer(read_only=True)
     class Meta:
         model = SavedPost
         fields = ('id', 'post', 'profile', 'created_at', 'updated_at')
+        
+    def get_save(self, obj):
+        try:
+            save = SavedPost.objects.get(id=obj.id)
+            return save.id
+        except SavedPost.DoesNotExist:
+            return 0
+    
