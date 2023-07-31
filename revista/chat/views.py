@@ -73,3 +73,35 @@ class MessagesView(generics.ListAPIView):
         queryset = Message.objects.all()
         queryset = queryset.filter(chat_id=chat_id)
         return queryset
+    
+# forward message
+# change to class
+class ForwardMessage(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = self.request.user
+        message_id = request.POST.get('message_id')
+        new_chat_id = request.POST.get('new_chat_id')
+        
+        if not message_id:
+            return Response({'error': 'Missing message_id field.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not new_chat_id:
+            return Response({'error': 'Missing new_chat_id field.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        # Retrieve the original message
+        original_message = get_object_or_404(Message, id=message_id)
+        
+        # Create the forwarded message by copying the information from the original message
+        forwarded_message = Message.objects.create(
+            chat_id=new_chat_id,
+            author=user,
+            type=original_message.type,
+            text=original_message.text,
+            image=original_message.image,
+            voice_record=original_message.voice_record,
+            reaction=original_message.reaction,
+            reply=original_message.reply,
+        )
+        return Response({'message': 'Message forwarded successfully.'}, status=status.HTTP_201_CREATED)
