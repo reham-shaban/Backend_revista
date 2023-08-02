@@ -21,13 +21,16 @@ class Report(models.Model):
     type = models.CharField(max_length=25, choices=TYPE)
     category = models.CharField(max_length=25, choices=CATEGORY)
     reported_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reported_user')
+    description = models.TextField(null=True, blank=True)
+    status = models.CharField(max_length=25, choices=STATUS, default='pending')
     reported_post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='reported_post', null=True, blank=True)
-    description = models.TextField()
-    status = models.CharField(max_length=25, choices=STATUS)
-    moderator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='moderator')
-    moderator_comment = models.TextField()
+    moderator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='moderator', null=True, blank=True)
+    moderator_comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f'{self.type} : {self.description}'
 
 class Warn(models.Model):
     warned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='warned_user')

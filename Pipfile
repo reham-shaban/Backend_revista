@@ -15,6 +15,7 @@ django-cors-headers = "*"
 django-phonenumber-field = {extras = ["phonenumbers"], version = "*"}
 requests = "*"
 faker = "*"
+django-admin-interface = "*"
 
 [dev-packages]
 
