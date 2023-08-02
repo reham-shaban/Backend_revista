@@ -2,6 +2,7 @@ import random
 from django.core.management.base import BaseCommand
 from phonenumber_field.phonenumber import PhoneNumber
 from faker import Faker
+from accounts.models import CustomUser
 from main.models import Profile, Topic
 from posts.models import Post, Like, Comment, Reply, SavedPost
 from accounts.models import CustomUser

@@ -186,7 +186,7 @@ class LikeView(generics.ListCreateAPIView):
         profile = self.request.user.profile
         like = Like.objects.create(post_id=post_id, profile=profile)
         return Response(self.serializer_class(like).data, status=status.HTTP_201_CREATED)
-    
+
 # delete Likes
 class LikeDeleteView(generics.DestroyAPIView):
     queryset = Like.objects.all()
