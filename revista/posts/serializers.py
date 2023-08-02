@@ -19,16 +19,18 @@ class AuthorSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     author=AuthorSerializer(read_only=True)
     like_id= serializers.SerializerMethodField(method_name='get_like')
+    saved_post_id= serializers.SerializerMethodField(method_name='get_save')
     topics_details = TopicSerializer(source='topics' ,many=True, read_only=True)
     likes_count = serializers.SerializerMethodField(method_name='get_likes_count')
     comments_count = serializers.SerializerMethodField(method_name='get_comments_count')
     
     class Meta:
         model = Post
-        fields = ('id', 'author', 'content', 'link', 'topics_details', 'image', 'like_id',  'likes_count', 'comments_count', 'created_at', 'updated_at')
+        fields = ('id', 'author', 'content', 'link', 'topics_details', 'image', 'like_id', 'saved_post_id', 'likes_count', 'comments_count', 'created_at', 'updated_at')
     
     def get_like(self, obj):
         request = self.context.get('request', None)   
+        print(request)
         user_id = request.user.id
         try:
             like = Like.objects.get(post=obj, profile=user_id)

@@ -11,13 +11,16 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         fake = Faker()
         
+        images = ['\post_images\hyakkimaru.jpg', '\post_images\gojo.jpg', '\post_images\dororo.jpg']
+        
         # Create posts
         for _ in range(30):
+            random_index = random.randint(0, len(images) - 1)
             post = Post.objects.create(
                 author=random.choice(Profile.objects.all()),
                 content=fake.text(),
                 link=fake.url(),
-                image='\post_images\hyakkimaru.jpg',
+                image=images[random_index],
             )
             # Add random topics to the post
             post.topics.set(Topic.objects.order_by('?')[:random.randint(1, 3)])

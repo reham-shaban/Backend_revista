@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'posts',
     'notifications',
     'chat',
+    'report',
 ]
 
 SITE_ID = 1
