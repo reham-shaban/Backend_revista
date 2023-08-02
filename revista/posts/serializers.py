@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Like, Comment,Reply, SavedPost,Like
+from .models import Post, Like, Comment,Reply, SavedPost, SearchHistory 
 from accounts.models import CustomUser
 from main.models import Profile
 from main.serializers import TopicSerializer
@@ -34,6 +34,15 @@ class PostSerializer(serializers.ModelSerializer):
             like = Like.objects.get(post=obj, profile=user_id)
             return like.id
         except Like.DoesNotExist:
+            return 0
+        
+    def get_save(self, obj):
+        request=self.context.get('request', None)
+        user_id = request.user.id
+        try:
+            save = SavedPost.objects.get(post=obj, profile=user_id)
+            return save.id
+        except SavedPost.DoesNotExist:
             return 0
     
     def get_likes_count(self, obj):
@@ -80,3 +89,9 @@ class SavedPostSerializer(serializers.ModelSerializer):
         except SavedPost.DoesNotExist:
             return 0
     
+    
+class SearchHistorySerializer(serializers.ModelSerializer):
+    searched_username=UserSerializer
+    class Meta:
+        model=SearchHistory
+        fields=('id','user','searched_user','search_time','updated_at')

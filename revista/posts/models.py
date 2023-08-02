@@ -1,6 +1,7 @@
 from django.db import models
 
 from main.models import Profile, Topic
+from accounts.models import CustomUser
 
 # Create your models here.
 
@@ -76,3 +77,17 @@ class SavedPost(models.Model):
         
     def __str__(self):
         return f"{self.post.author.user}: {self.post.content}"
+
+
+
+class SearchHistory(models.Model):
+    user=models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='user_search')
+    searched_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='searched_user')
+    search_time = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-search_time']
+        
+    def __str__(self):
+        return f"{self.user.username}'s search historty"

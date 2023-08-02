@@ -13,6 +13,9 @@ urlpatterns = [
     path('discover/<int:topic_id>/',views.DiscoverView.as_view(),name='discover-topic'),
     path('general/',views.GeneralView.as_view(),name='general-posts'),
     path('search/',views.SearchView.as_view(),name='search-users'),
+    path('search-history/',views.HistoryView.as_view(),name='search-history'),
+    path('add-history/',views.HistoryCreateView.as_view()),
+    path('edit-history/<int:pk>/',views.HistoryDetailView.as_view()),
     
     # comment
     path('comments/<int:post_id>/',views.CommentView.as_view(),name='add-comment'),
