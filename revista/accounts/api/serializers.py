@@ -19,3 +19,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
         return CustomUser.objects.create_user(**validated_data)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=False)
