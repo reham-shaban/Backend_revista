@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if reports %}
+
+        {% for report in reports %}
+            {{report.type}}
+        {% endfor %}
+
+    {% else %}
+        <p>No reports added yet.</p>
+    {% endif %}
+
+{% endblock %}
+
