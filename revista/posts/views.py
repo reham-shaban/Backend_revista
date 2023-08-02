@@ -1,10 +1,10 @@
 from django.db.models import Q, Sum
 from django.db import IntegrityError
-from .models import Post, Comment, Reply, SavedPost,Like
+from .models import Post, Comment, Reply, SavedPost,Like,SearchHistory
 from main.models import Follow, TopicFollow
 from accounts.models import CustomUser
 from rest_framework import generics
-from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer, UserSerializer
+from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer, UserSerializer, SearchHistorySerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 from django.http import Http404
@@ -204,7 +204,6 @@ class SavedPostView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Filter queryset to include only saved posts of the authenticated user
         profile = self.request.user.profile
         queryset = SavedPost.objects.filter(profile=profile)
         return queryset
@@ -246,3 +245,42 @@ class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
         return saved_post
 
 
+class HistoryView(generics.ListAPIView):
+    queryset = SearchHistory.objects.all()
+    serializer_class = SearchHistorySerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        user = self.request.user
+        queryset = SearchHistory.objects.filter(user=user)
+        return queryset
+
+
+class HistoryCreateView(generics.CreateAPIView):
+    queryset=SearchHistory.objects.all()
+    serializer_class=SearchHistorySerializer
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
+    def create(self, request, *args, **kwargs):
+        print('first in def create')
+        searched_username = request.POST.get('searched_username')
+        print(searched_username)
+        if searched_username:
+            searched_user=CustomUser.objects.get(username=searched_username)
+            SearchHistory.objects.create(user=request.user, searched_user=searched_user)
+            return self.get_response()
+        
+        return self.get_error_response()
+    
+    def get_response(self):
+        return Response({"message": "Search history entry added successfully."}, status=status.HTTP_201_CREATED)
+
+    def get_error_response(self):
+        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+class HistoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset=SearchHistory.objects.all()
+    serializer_class=SearchHistorySerializer
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]

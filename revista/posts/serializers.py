@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Like, Comment,Reply, SavedPost,Like
+from .models import Post, Like, Comment,Reply, SavedPost, SearchHistory 
 from accounts.models import CustomUser
 from main.models import Profile
 from main.serializers import TopicSerializer
@@ -91,3 +91,9 @@ class SavedPostSerializer(serializers.ModelSerializer):
         except SavedPost.DoesNotExist:
             return 0
     
+    
+class SearchHistorySerializer(serializers.ModelSerializer):
+    searched_username=UserSerializer
+    class Meta:
+        model=SearchHistory
+        fields=('id','user','searched_user','search_time','updated_at')
