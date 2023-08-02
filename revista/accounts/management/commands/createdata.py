@@ -17,6 +17,8 @@ class Command(BaseCommand):
             username = CustomUser.generate_username(email)  # Use the method from the CustomUser model
             user = CustomUser.objects.create_user(
                 username=username,
+                first_name = fake.first_name(),
+                last_name = fake.last_name(),
                 email=email,
                 password='password',
                 profile_image=fake.image_url(),
