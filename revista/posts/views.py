@@ -221,7 +221,8 @@ class SavedPostCreateView(generics.CreateAPIView):
         profile = self.request.user.profile
         try:
             saved = SavedPost.objects.create(post_id=post_id, profile=profile)
-            return Response(SavedPostSerializer(saved).data, status=status.HTTP_201_CREATED)
+            serializer = SavedPostSerializer(instance=saved, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({"error": "This post is already saved by the user."}, status=status.HTTP_400_BAD_REQUEST)
 

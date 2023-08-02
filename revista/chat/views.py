@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, OuterRef, Subquery
+from django.urls import reverse
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +9,7 @@ from knox.auth import TokenAuthentication
 
 from accounts.models import CustomUser
 from main.models import Profile
+from posts.models import Post
 from .models import Chat, Message
 from .serializers import ChatContactSerializer, ChatSerializer, MessageSerializer
 
@@ -75,7 +77,6 @@ class MessagesView(generics.ListAPIView):
         return queryset
     
 # forward message
-# change to class
 class ForwardMessage(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -105,3 +106,34 @@ class ForwardMessage(APIView):
             reply=original_message.reply,
         )
         return Response({'message': 'Message forwarded successfully.'}, status=status.HTTP_201_CREATED)
+
+# share post to chat
+class SharePost(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = self.request.user
+        chat_id = request.POST.get('chat_id')
+        post_id = request.POST.get('post_id')
+        post_url = request.POST.get('post_url')
+        
+        if not chat_id:
+            return Response({'error': 'Missing chat_id field.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not post_id:
+            return Response({'error': 'Missing post_id field.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Retrieve chat and post
+        chat = get_object_or_404(Chat, id=chat_id)
+        post = get_object_or_404(Post, id=post_id)
+
+        # Create the message
+        message = Message.objects.create(
+            chat_id=chat_id,
+            author=user,
+            type='text',
+            text=post_url,
+        )
+        
+        return Response({'message': 'Post shared successfully.'}, status=status.HTTP_201_CREATED)
+
+        

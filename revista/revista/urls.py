@@ -13,6 +13,7 @@ urlpatterns = [
     path('notifications/', include('notifications.urls')),
     path('chat/', include("chat.urls")),
     path('posts/', include('posts.urls')),
+    path('report/', include('report.urls')),
    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
