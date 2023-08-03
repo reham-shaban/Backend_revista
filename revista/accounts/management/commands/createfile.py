@@ -25,15 +25,15 @@ class Command(BaseCommand):
             random_index = random.randint(0, len(images) - 1)
             user.profile_image = images[random_index]
             user.save()
-        
-        # Create saved posts for profiles
-        for profile in Profile.objects.all():
-            num_saved_posts = random.randint(0, 5)
-            posts = Post.objects.order_by('?')[:num_saved_posts]
-            for post in posts:
-                SavedPost.objects.get_or_create(
-                    post=post,
-                    profile=profile
-                )
+                    
+        # # Create saved posts for profiles
+        # for profile in Profile.objects.all():
+        #     num_saved_posts = random.randint(0, 5)
+        #     posts = Post.objects.order_by('?')[:num_saved_posts]
+        #     for post in posts:
+        #         SavedPost.objects.get_or_create(
+        #             post=post,
+        #             profile=profile
+        #         )
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database with dummy data.'))
