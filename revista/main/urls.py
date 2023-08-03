@@ -7,6 +7,7 @@ from . import views
 urlpatterns = [
     path('topics/', views.TopicListView.as_view()),
     path('topics-follow/', views.TopicFollowView.as_view()),
+    path('topics-unfollow/<int:pk>', views.TopicUnFollowView.as_view()),
     
     path('profile-list/', views.ProfileView.as_view()),
     path('profile/<int:pk>', views.SingleProfileView.as_view()),

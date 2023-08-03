@@ -6,6 +6,7 @@ from knox.auth import TokenAuthentication
 from .models import Profile, Topic, TopicFollow, Follow
 from .serializers import ProfileSerializer, VistorProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer, FollowingListSerializer, FollowersListSerializer
 
+# Profile
 # List all Profiles
 class ProfileView(generics.ListCreateAPIView):
     queryset = Profile.objects.all()
@@ -30,6 +31,7 @@ class SingleProfileView(generics.RetrieveUpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+# Topics
 # List Topics
 class TopicListView(generics.ListAPIView):
     queryset = Topic.objects.all()
@@ -59,7 +61,14 @@ class TopicFollowView(generics.ListCreateAPIView):
         profile = user.profile
         serializer.save(profile=profile)
 
+class TopicUnFollowView(generics.DestroyAPIView):
+    queryset = TopicFollow.objects.all()
+    serializer_class = TopicFollowSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
+
+# Follow
 # Follow someone [POST]
 class FollowView(generics.CreateAPIView):
     queryset = Follow.objects.all()
