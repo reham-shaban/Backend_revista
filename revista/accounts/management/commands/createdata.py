@@ -12,6 +12,9 @@ class Command(BaseCommand):
         fake = Faker()
         
         # Create custom users
+        images = ['\profile_images\ma.jpg', '\profile_images\jj.jpg', '\profile_images\mn.jpg']
+        random_index = random.randint(0, len(images) - 1)
+        
         for _ in range(10):
             email = fake.email()
             username = CustomUser.generate_username(email)  # Use the method from the CustomUser model
@@ -21,7 +24,7 @@ class Command(BaseCommand):
                 last_name = fake.last_name(),
                 email=email,
                 password='password',
-                profile_image=fake.image_url(),
+                profile_image=images[random_index],
                 birth_date=fake.date_of_birth(),
                 phone_number=PhoneNumber.from_string(fake.phone_number(), region='US'),
                 )

@@ -93,7 +93,7 @@ class SavedPostSerializer(serializers.ModelSerializer):
     
     
 class SearchHistorySerializer(serializers.ModelSerializer):
-    searched_username=UserSerializer
+    searched_user=UserSerializer(read_only=True)
     class Meta:
         model=SearchHistory
         fields=('id','user','searched_user','search_time','updated_at')

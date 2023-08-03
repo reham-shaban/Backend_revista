@@ -90,4 +90,4 @@ class SearchHistory(models.Model):
         ordering = ['-search_time']
         
     def __str__(self):
-        return f"{self.user.username}'s search historty"
+        return f"{self.user.username} | {self.searched_user.username}"

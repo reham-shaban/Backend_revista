@@ -263,11 +263,11 @@ class HistoryCreateView(generics.CreateAPIView):
     permission_classes=[IsAuthenticated]
     def create(self, request, *args, **kwargs):
         print('first in def create')
-        searched_username = request.POST.get('searched_username')
+        searched_username = request.data.get('searched_username')
         print(searched_username)
         if searched_username:
             searched_user=CustomUser.objects.get(username=searched_username)
-            SearchHistory.objects.create(user=request.user, searched_user=searched_user)
+            SearchHistory.objects.get_or_create(user=request.user, searched_user=searched_user)
             return self.get_response()
         
         return self.get_error_response()

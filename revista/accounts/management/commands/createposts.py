@@ -27,7 +27,7 @@ class Command(BaseCommand):
             
             # Create likes for posts
             for _ in range(random.randint(0, 10)):
-                Like.objects.create(
+                Like.objects.get_or_create(
                     post=post,
                     profile=random.choice(Profile.objects.all())
                 )
@@ -35,11 +35,11 @@ class Command(BaseCommand):
             # Create comments for posts
             for _ in range(random.randint(0, 5)):
                 comment = Comment.objects.create(
-                 post=post,
-                   author=random.choice(Profile.objects.all()),
-                  content=fake.text()
+                    post=post,
+                    author=random.choice(Profile.objects.all()),
+                    content=fake.text()
                 )
-              
+
                 # Create replies for comments
                 for _ in range(random.randint(0, 3)):
                     Reply.objects.create(
@@ -49,10 +49,13 @@ class Command(BaseCommand):
                     )
 
         # Create saved posts for profiles
-        for profile in Profile.objects.all().order_by('?')[:random.randint(0, 5)]:
-            SavedPost.objects.get_or_create(
-                post=post,
-                profile=profile
-            )
+        for profile in Profile.objects.all():
+            num_saved_posts = random.randint(0, 5)
+            posts = Post.objects.order_by('?')[:num_saved_posts]
+            for post in posts:
+                SavedPost.objects.get_or_create(
+                    post=post,
+                    profile=profile
+                )
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database with dummy data.'))

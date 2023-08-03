@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if report %}
+
+        {{report.status}} <br>
+        {{report.type}} <br>
+        {{report.category}} <br>
+        {{report.reporter}} <br>
+        {{report.description}} <br>
+        
+
+    {% else %}
+        <p>No reports.</p>
+    {% endif %}
+
+{% endblock %}
+
