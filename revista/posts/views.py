@@ -35,7 +35,7 @@ class HomePostView(generics.ListCreateAPIView):
             total_points=Sum('pointed_post__value')
         )
         # order queryset based on points
-        queryset = queryset.order_by('-total_points')
+        queryset = queryset.order_by('-total_points', '-created_at')
         return queryset
     
     def perform_create(self, serializer):
@@ -90,9 +90,10 @@ class DiscoverView(generics.ListAPIView):
     def get_queryset(self):
         topic_id = self.kwargs.get('topic_id')
         queryset = Post.objects.all()
-        queryset=queryset.filter(topics__id=topic_id)
+        if topic_id != 0:
+            queryset=queryset.filter(topics__id=topic_id)
         queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
-        queryset = queryset.order_by('-total_points')
+        queryset = queryset.order_by('-total_points', '-created_at')
         return queryset
 
 class GeneralView(generics.ListAPIView):
