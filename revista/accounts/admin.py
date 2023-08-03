@@ -7,7 +7,7 @@ from .models import CustomUser, PasswordResetCode
 
 class CustomUserAdmin(UserAdmin):
     list_display = (
-        'username', 'email', 'first_name', 'last_name', 'is_staff',
+        'username', 'email', 'first_name', 'last_name','is_active' , 'is_staff',
         'role', 'is_online', 'profile_image', 'birth_date', 'phone_number', 'gender'
         )
 
