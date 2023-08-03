@@ -1,7 +1,7 @@
 import random, requests, io
 from django.forms import ValidationError
 from django.core.mail import send_mail
-from django.contrib.auth import login
+from django.contrib.auth import login,authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.files.storage import FileSystemStorage
 
@@ -89,20 +89,33 @@ class LoginAPI(KnoxLoginView):
     authentication_classes = (TokenAuthentication,)
 
     def post(self, request, format=None):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        token = AuthToken.objects.create(user)
-        return Response(
-            {
-                'token': token[1],
-                'id': user.id,
-                'profile_id': user.profile.id
-            },
-            status=status.HTTP_200_OK
-        )
-    
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        if username and password:
+            user = CustomUser.objects.get(username=username)
+            print(user)
+            if user is not None:
+                if not user.is_active:
+                    print("not active")
+                    user.is_active = True
+                    user.save()
+                    print("user.is_active: ", user.is_active)
+            
+                login(request, user)
+                token = AuthToken.objects.create(user)
+                return Response(
+                    {
+                        'token': token[1],
+                        'id': user.id,
+                        'profile_id': user.profile.id,
+                    },
+                    status=status.HTTP_200_OK
+                )
+                
+            else:
+                return Response('Wrong username!', status=status.HTTP_404_NOT_FOUND)
+        
+        return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
 # Reset password views
 # 1.take the username and send an email
 class ForgetPasswordView(APIView):
@@ -232,3 +245,16 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
             self.perform_update(serializer)
 
             return Response(serializer.data)
+
+class DeactivateAccountView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer  
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+        return Response({'message': 'Account deactivated successfully'})
