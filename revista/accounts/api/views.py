@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.files.storage import FileSystemStorage
+from django.core.validators import EmailValidator
 
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
@@ -15,7 +16,7 @@ from knox.auth import TokenAuthentication
 from knox.views import LoginView as KnoxLoginView
 from knox.models import AuthToken
 
-from ..models import CustomUser, PasswordResetCode
+from ..models import CustomUser, PasswordResetCode, EmailChangeCode
 from .serializers import UserSerializer, RegisterSerializer, ChangePasswordSerializer
 
 # Google
@@ -202,7 +203,86 @@ class ResetPasswordView(APIView):
         
         return Response({"message" : "successful"}, status=status.HTTP_200_OK)
 
+class ChangeEmailView(APIView):
+    def post(self,request):
+        username=request.data.get('username')
+        new_email=request.data.get('email')
+        if not username:
+            return Response({"error": "username required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:  
+            user = CustomUser.objects.get(username=username)            
+            id = user.id
+        except user.DoesNotExist:
+            return Response({"error": "user with that username doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+        EmailChangeCode.objects.filter(user=user).delete()
+        def generate_random_code():
+                    code = ""
+                    for i in range(6):
+                        code += str(random.randint(0, 9))
+                    return code
 
+        code = generate_random_code()
+        reset_code = EmailChangeCode.objects.create(user=user, code=code)
+
+
+        subject = 'Verify Code For Email Change'
+        message = f'This is your verification code for revista: {code}\nif you haven\'t request for it, ignore it'
+        from_email = 'settings.EMAIL_HOST_USER'
+        recipient_list = [new_email]
+           
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=from_email,
+            recipient_list=recipient_list,
+            fail_silently=False,
+        )
+        return Response({'id': id, 'email': new_email}, status=status.HTTP_200_OK)
+
+class CheckEmailCodeView(APIView):
+    def post(self, request):
+        sent_code = request.data.get('code')
+        if not sent_code:
+            return Response({"error": "code required"}, status=status.HTTP_400_BAD_REQUEST)
+         
+        try:
+            code = EmailChangeCode.objects.get(code=sent_code)
+        except EmailChangeCode.DoesNotExist:
+            return Response({"error": "wronge code"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"message" : "successful"}, status=status.HTTP_200_OK)
+        
+
+class ResetEmailView(APIView):
+    def post(self, request):
+        id= request.data.get('id')
+        new_email=request.data.get('email')
+        
+        if not id:
+            return Response({"error": "id required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not new_email:
+            return Response({"error": "password required"}, status=status.HTTP_400_BAD_REQUEST)
+        user = CustomUser.objects.get(id=id)
+        if user is None:
+            return Response({"error": "No user exist with that id"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        email_validator = EmailValidator(message="Enter a valid email address.")
+        
+        try:
+            email_validator(new_email)
+        except ValidationError as e:
+            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.email = new_email
+        user.save()
+        
+        return Response({"message": "Email changed successfully"}, status=status.HTTP_200_OK)
+        
+        
+        
+        
+        
+        
 # List all users
 class UserView(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
@@ -223,7 +303,7 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
     def update(self, request, *args, **kwargs):
             partial = kwargs.pop('partial', True)  # Set partial to True for PATCH requests
             instance = self.get_object()
-
+            
             # Deserialize the request data to check old and new passwords
             serializer = ChangePasswordSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)

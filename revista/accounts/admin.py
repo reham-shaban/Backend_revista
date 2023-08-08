@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser, PasswordResetCode
+from .models import CustomUser, PasswordResetCode, EmailChangeCode
 
 # Register your models here.
 
@@ -56,3 +56,4 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(PasswordResetCode)
+admin.site.register(EmailChangeCode)

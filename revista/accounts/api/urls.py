@@ -14,7 +14,11 @@ urlpatterns = [
     path('forget-password/', views.ForgetPasswordView.as_view()),
     path('check-code/', views.CheckCodeView.as_view()),
     path('reset-password/', views.ResetPasswordView.as_view()),     
-          
+      
+    path('change-email/', views.ChangeEmailView.as_view()),
+    path('check-email-code/', views.CheckEmailCodeView.as_view()),
+    path('reset-email/', views.ResetEmailView.as_view()),     
+      
     path('user-list/', views.UserView.as_view()),
     path('user-edit/', views.UserUpdateView.as_view()),
     path('deactivate_account/', views.DeactivateAccountView.as_view(), name='deactivate_account'),
