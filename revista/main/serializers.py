@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Profile, Topic, TopicFollow, Follow
+from .models import Profile, Topic, TopicFollow, Follow, Block
 from posts.models import Post
 from accounts.models import CustomUser
 from accounts.api.serializers import UserSerializer
@@ -110,3 +110,15 @@ class FollowersListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ['id', 'follower']
+
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = ['id', 'blocker', 'blocked']
+        read_only_fields = ['blocker']
+
+class BlockedListSerializer(serializers.ModelSerializer):
+    blocked=ProfileSerializer(read_only=True)
+    class Meta:
+        model=Block
+        fields=['id','blocked']

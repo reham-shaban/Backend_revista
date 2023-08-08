@@ -1,7 +1,7 @@
 from django.db.models import Q, Sum
 from django.db import IntegrityError
 from .models import Post, Comment, Reply, SavedPost,Like,SearchHistory
-from main.models import Follow, TopicFollow
+from main.models import Follow, TopicFollow, Block
 from accounts.models import CustomUser
 from rest_framework import generics
 from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer, UserSerializer, SearchHistorySerializer
