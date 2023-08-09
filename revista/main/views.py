@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 
-from .models import Profile, Topic, TopicFollow, Follow
-from .serializers import ProfileSerializer, VistorProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer, FollowingListSerializer, FollowersListSerializer
+from .models import Profile, Topic, TopicFollow, Follow,Block
+from .serializers import ProfileSerializer, VistorProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer, FollowingListSerializer, FollowersListSerializer, BlockSerializer, BlockedListSerializer
 
 # Profile
 # List all Profiles
@@ -108,3 +108,30 @@ class FollowersListView(generics.ListAPIView):
         queryset = Follow.objects.all()
         queryset = queryset.filter(followed=self.request.user.profile)
         return queryset
+    
+    
+# List Blocked users
+class BlockedUsers(generics.ListAPIView):
+    serializer_class=BlockedListSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        queryset=Block.objects.all()
+        queryset=queryset.filter(blocker=self.request.user.profile)
+        return queryset
+    
+
+class BlockUsers(generics.CreateAPIView):
+    queryset = Block.objects.all()
+    serializer_class=BlockSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(blocker=self.request.user.profile)
+        
+
+class UnblockUsers(generics.DestroyAPIView):
+    queryset = Block.objects.all()
+    serializer_class=BlockSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

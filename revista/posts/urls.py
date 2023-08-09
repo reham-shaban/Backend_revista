@@ -7,7 +7,7 @@ urlpatterns = [
     path('post/<int:pk>/', views.PostDetailView.as_view()),
     path('all/', views.PostView.as_view()),
     path('timeline/',views.MyTimeLineView.as_view()),
-    path('timeline/<int:profile_id>',views.TimeLineView.as_view()),
+    path('timeline/<int:profile_id>/',views.TimeLineView.as_view()),
     
     # discover page
     path('discover/<int:topic_id>/',views.DiscoverView.as_view(),name='discover-topic'),

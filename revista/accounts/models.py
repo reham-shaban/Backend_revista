@@ -47,4 +47,17 @@ class PasswordResetCode(models.Model):
     
     def __str__(self):
         return f'code: {self.code}'
+    
+    
+class EmailChangeCode(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    code = models.IntegerField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(default=timezone.now() + timezone.timedelta(minutes=30))
+         
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+    
+    def __str__(self):
+        return f'code: {self.code}'
    
