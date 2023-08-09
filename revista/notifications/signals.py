@@ -8,9 +8,10 @@ from main.models import Follow
 from accounts.models import CustomUser
 from posts.models import Like,Post , Comment, Reply
 from chat.models import Message
+from report.models import Warn
 from .models import Notification
 
-# Follow
+# Follow's Notification
 @receiver(post_save, sender=Follow)
 def send_notification_on_follow(sender, instance, created, **kwargs):
     if created:
@@ -59,8 +60,98 @@ def send_notification_on_follow(sender, instance, created, **kwargs):
         except Exception as e:
             print('Exception in signals: ', e)
 
+# Chat's Notification
+@receiver(post_save, sender=Message)
+def message_notification(sender, instance, created, **kwargs):
+    if created:
+        channel_layer = get_channel_layer()
+        chat = instance.chat
+        created_at = instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        # sender of message
+        sender = instance.author
+        profile_image = sender.profile_image
+        
+        # reciever user
+        if sender == chat.user1:
+            receiver = chat.user2
+        else:
+            receiver = chat.user1
+        
+        group_name = f'user-notifications-{receiver.id}'
+        
+        # detail
+        if instance.type == 'text':
+            detail = instance.text
+        elif instance.type == 'image':
+            detail = 'sent image'
+        elif instance.type == 'voice_record':
+            detail = 'sent voice_record'
+        else:
+            detail = ''
+                
+        # send a message to the consumer
+        event = {
+            'type': 'notification',
+            'text': {
+                'type': 'Chat',
+                'username': sender.username,
+                'forward_id': chat.id,
+                'profile_image': profile_image.url,
+                'detail' : detail,
+                'created_at': created_at
+            },
+        }
+        print(event)
+        
+        try:
+            async_to_sync(channel_layer.group_send)(group_name, event)
+        except Exception as e:
+            print('Exception in signals: ', e)
+
+# Warn's Notification
+@receiver(post_save, sender=Warn)
+def warn_notification(sender, instance, created, **kwargs):
+    if created:
+        channel_layer = get_channel_layer()
+        # warned user data
+        warned_user = instance.warned_user
+        id = warned_user.id        
+        group_name = f'user-notifications-{id}'  # Create a separate group for each user   
+        
+        # warn data
+        created_at = instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        detail = instance.comment
+        warn_id = instance.id
+        
+        # Create a new Notification object
+        notification = Notification.objects.create(
+            user = warned_user,
+            type = 'Warn',
+            forward_id = warn_id,
+            detail = detail,
+        )       
+        # Save the notification to the database
+        notification.save()
+            
+        # send a message to the consumer
+        event = {
+            'type': 'notification',
+            'text': {
+                'type': 'Follow',
+                'forward_id': warn_id,
+                'detail' : detail,
+                'created_at': created_at
+            },
+        }       
+        print(event)
+        
+        try:
+            async_to_sync(channel_layer.group_send)(group_name, event)
+        except Exception as e:
+            print('Exception in signals: ', e)
+
 # Post's Notification
-# Like
+# like
 @receiver(post_save, sender=Like)
 def send_notification_on_Like(sender, instance, created, **kwargs):
     if created:
@@ -111,7 +202,7 @@ def send_notification_on_Like(sender, instance, created, **kwargs):
         except Exception as e:
             print('Exception in signals: ', e)
 
-# Comment
+# comment
 @receiver(post_save, sender=Comment)
 def send_notification_on_comment(sender, instance, created, **kwargs):
     if created:
@@ -162,7 +253,7 @@ def send_notification_on_comment(sender, instance, created, **kwargs):
         except Exception as e:
             print('Exception in signals: ', e)
 
-# Reply
+# reply
 @receiver(post_save, sender=Reply)
 def send_notification_on_reply(sender, instance, created, **kwargs):
     if created:
@@ -214,54 +305,7 @@ def send_notification_on_reply(sender, instance, created, **kwargs):
             print('Exception in signals: ', e)            
 
 
-# Chat   
-@receiver(post_save, sender=Message)
-def message_notification(sender, instance, created, **kwargs):
-    if created:
-        channel_layer = get_channel_layer()
-        chat = instance.chat
-        created_at = instance.created_at.strftime("%Y-%m-%d %H:%M:%S")
-        # sender of message
-        sender = instance.author
-        profile_image = sender.profile_image
-        
-        # reciever user
-        if sender == chat.user1:
-            receiver = chat.user2
-        else:
-            receiver = chat.user1
-        
-        group_name = f'user-notifications-{receiver.id}'
-        
-        # detail
-        if instance.type == 'text':
-            detail = instance.text
-        elif instance.type == 'image':
-            detail = 'sent image'
-        elif instance.type == 'voice_record':
-            detail = 'sent voice_record'
-        else:
-            detail = ''
-                
-        # send a message to the consumer
-        event = {
-            'type': 'notification',
-            'text': {
-                'type': 'Chat',
-                'username': sender.username,
-                'forward_id': chat.id,
-                'profile_image': profile_image.url,
-                'detail' : detail,
-                'created_at': created_at
-            },
-        }
-        print(event)
-        
-        try:
-            async_to_sync(channel_layer.group_send)(group_name, event)
-        except Exception as e:
-            print('Exception in signals: ', e)
-
+# Mention's Notification
 # post mention
 @receiver(post_save, sender=Post)
 def create_mentions_notification_on_post(sender, instance, created, **kwargs):
@@ -305,8 +349,7 @@ def create_mentions_notification_on_comment(sender, instance, created, **kwargs)
                 except CustomUser.DoesNotExist:
                     print(f"No User Found with mentioned username {mention} in comment {instance.content}")
 
-
-# Reply mention
+# reply mention
 @receiver(post_save, sender=Reply)
 def create_mentions_notification_on_reply(sender, instance, created, **kwargs):
     if created:

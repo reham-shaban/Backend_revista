@@ -2,12 +2,28 @@
 
 {% block content %}
 
+<div class="role">
+{{user.role}}
+</div>
+
+    {% if user.role == 'admin' %}
+    <p><a href="/report/?status=redirected">Redirected</a> - <a href="/report/?status=resolved">Resolved</a></p>
+    {% endif %}
+        
+    <p><a href="/report/?type=chat{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Chat</a> -
+        <a href="/report/?type=user{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">User</a> -
+        <a href="/report/?type=post{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Post</a></p>
+ 
     {% if reports %}
-
         {% for report in reports %}
-            {{report.type}}
+            <h3><a href="/report/{{report.id}}" style="color:black;">
+                {{report}}
+                {% comment %} <div>
+                {{report.category}} <br>
+                {{report.reporter.username}} : {{report.description}}
+                </div> {% endcomment %}
+            </a></h3>           
         {% endfor %}
-
     {% else %}
         <p>No reports added yet.</p>
     {% endif %}

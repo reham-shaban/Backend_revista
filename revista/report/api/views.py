@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from knox.auth import TokenAuthentication
 
-from ..models import Report, Warn
+from ..models import Report
 from .serializers import ReportSerializer
 
 # Create your views here.

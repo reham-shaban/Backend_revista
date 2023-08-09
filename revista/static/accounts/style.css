@@ -17,13 +17,13 @@ input, textarea {
   margin-bottom: 10px;
 }
 
-/* button {
+button {
   background-color: rebeccapurple;
   color: white;
   padding: 10px;
   border: none;
   cursor: pointer;
-} */
+}
 
 a {
   color: blue;
