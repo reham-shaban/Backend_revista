@@ -1,11 +1,12 @@
-from django.views import generic
+import json
+from django.views import generic, View
 from django.urls import reverse, reverse_lazy
-from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Report
 from posts.models import Post
+from chat.models import Message
 from .forms import ReportUpdateForm, WarnForm
 
 # moderator screen (filter status, type from url)
@@ -38,8 +39,10 @@ class ReportList(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
                      
         return queryset
     
+
 class ReportDetail(LoginRequiredMixin, PermissionRequiredMixin, generic.DetailView):
     model = Report
+    template_name = 'report/detail_base.html'
     permission_required = 'report.view_report'
     
     def get_context_data(self, **kwargs):
@@ -48,8 +51,16 @@ class ReportDetail(LoginRequiredMixin, PermissionRequiredMixin, generic.DetailVi
         context['report_form'] = ReportUpdateForm(instance=context['object'])
         context['warn_form'] = WarnForm()
         
+        # post object
         if report.reported_post:
             context['post'] = report.reported_post
+        
+        # messages
+        if report.reported_chat:
+            chat = report.reported_chat
+            messages = Message.objects.filter(chat=chat)[:10]
+            context['chat'] = chat
+            context['messages'] = messages
             
         # Count the number of reports for the reported_user
         reported_user = context['object'].reported_user        
@@ -85,9 +96,9 @@ class ReportDetail(LoginRequiredMixin, PermissionRequiredMixin, generic.DetailVi
         context = self.get_context_data(report_form=report_form, warn_form=warn_form)
         return self.render_to_response(context)
 
-  
-class PostDelete(LoginRequiredMixin, PermissionRequiredMixin, generic.DeleteView):
-    model = Post
-    permission_required = 'posts.delete_post'
-    template_name = 'report/report_list.html'
-    success_url = reverse_lazy('report:reports')  # Redirect to a list view after deletion
+
+class PostDeleteView(View):
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        post.delete()
+        return redirect('report:reports')  # Redirect to report list page

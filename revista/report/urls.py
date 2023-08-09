@@ -7,5 +7,5 @@ app_name = 'report'
 urlpatterns = [
    path('', views.ReportList.as_view(), name='reports'), # '/report/?status=pending&type=user'
    path('<int:pk>', views.ReportDetail.as_view(), name='report-detail'),
-   path('<int:pk>/delete/', views.PostDelete.as_view(), name='post-delete'),
+   path('delete/<int:pk>/', views.PostDeleteView.as_view(), name='post-delete'),
 ]

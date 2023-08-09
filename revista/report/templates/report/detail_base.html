@@ -1,0 +1,217 @@
+{% extends 'base.html' %} {% block content %} {% if report %}
+<!-- Report INFO -->
+<p><b>Report type : </b> {{report.type}}</p>
+<p><b>Category : </b> {{ report.category }}</p>
+<p><b>Reporter : </b> {{ report.reporter.username }}</p>
+<!-- Reporter Description -->
+{% if report.description %}
+<p>{{ report.description }}</p>
+{% endif %}
+
+<p style="margin-bottom: 10px; color: #777">
+  This is report number {{ report_count }} for {{report.reported_user.username}}
+</p>
+
+<style>
+  .report-container {
+    width: 600px;
+    border: 2px solid #ff0000;
+    background-color: #fee8e8;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px auto;
+  }
+  
+  .report-header h2 {
+    margin: 0;
+  }
+  
+  .user-images {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .image-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .image-frame {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .profile-image-frame {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .user-info p {
+    margin: 10px 0;
+    font-weight: bold;
+  }
+  
+</style>
+
+
+<div class="report-container">
+<!-- Post -->
+{% if report.type == 'post' %}  
+  {% if post %}
+    <p style="margin-bottom: 10px; color: #333">
+      <b>Author:</b> {{ post.author.user }}
+    </p>
+    <p style="margin-bottom: 10px; color: #555">
+      <b>Topics:</b>
+      {% for topic in post.topics.all %}
+      {{ topic.name }}
+      {% if not forloop.last %}, {% endif %} {% endfor %}
+    </p>
+    <p style="margin-bottom: 10px; color: #222">
+      <b>Content:</b> {{ post.content }}
+    </p>
+    <p>
+      {% if post.image %}
+      <b>Image:</b>
+      <img
+        src="{{ post.image.url }}"
+        alt="Reported Post Image"
+        style="max-width: 100%; height: auto"
+      />
+      {% endif %}
+    </p>
+    <p>
+      {% if post.link %}
+      <b>Link:</b>
+      <a href="{{ post.link }}" target="_blank">{{ post.link }}</a>
+      {% endif %}
+    </p>
+  
+  {% else %}
+    <p>Deleted Post.</p>
+  {% endif %}
+    
+{% endif %}
+
+<!-- Chat -->
+{% if report.type == 'chat' %}
+  <h1>Chat Detail</h1>
+  <h2>Users: {{ chat.user1 }} - {{ chat.user2 }}</h2>
+  <h3>Last 10 Messages:</h3>
+  <ul>
+      {% for message in messages %}
+      <li>
+          <p>{{ message.author }}: {{ message.text }}</p>
+          {% if message.image %}
+          <img src="{{ message.image.url }}" alt="Message Image" style="max-width: 300px;">
+          {% endif %}
+          {% if message.voice_record %}
+          <audio controls>
+              <source src="{{ message.voice_record.url }}" type="audio/mpeg">
+              Your browser does not support the audio element.
+          </audio>
+          {% endif %}
+      </li>
+      {% endfor %}
+  </ul>
+{% endif %}
+
+<!-- Profile -->
+{% if report.type == 'user' %}
+  <div class="report-details">
+    <div class="report-header">
+        <h2>Reported User Details</h2>
+    </div>
+    <div class="user-images">
+      <div class="image-container">
+          <b>Cover Image:</b>
+          <div class="image-frame">
+              <img src="{{ report.reported_user.profile.cover_image.url }}" alt="Reported User CoverImage">
+          </div>
+      </div>
+      <div class="image-container">
+          <b>Profile Image:</b>
+          <div class="image-frame profile-image-frame">
+              <img src="{{ report.reported_user.profile_image.url }}" alt="Reported User Profile Image">
+          </div>
+      </div>
+    </div>
+    <div class="user-info">
+      <p><b>Username:</b> {{ report.reported_user.username }}</p>
+      <p><b>Full Name:</b> {{ report.reported_user.first_name }} {{ report.reported_user.last_name }}</p>
+    </div>
+  </div>
+{% endif %}
+</div>
+
+<br />
+<div class="action">
+  What action would you like to do?<br />
+  <div
+    style="
+      display: flex;
+      align-items: center;
+      margin: 0 auto;
+      width: 100%;
+      justify-content: center;
+      gap: 5rem;
+    "
+  >
+    <!-- Delete Post -->
+    {% if report.type == 'post' and post %}
+      <div>
+        <form action="{% url 'report:post-delete' post.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit">Delete Post</button>
+        </form>
+      </div>
+    {% endif %}
+
+    <!-- Warn user -->
+    <div style="margin: 2rem 0">
+      <button onclick="toggleForm()">Warn user</button>
+    </div>
+
+    <script>
+      function toggleForm() {
+        var form = document.getElementById("warnForm");
+        if (form.style.display === "none") {
+          form.style.display = "block";
+        } else {
+          form.style.display = "none";
+        }
+      }
+    </script>
+
+    <!-- Request admin to ban user -->
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" name="form_type" value="redirect">
+        Request admin to ban user</button
+      ><br />
+    </form>
+
+    <!-- Decline -->
+    <button type="submit">Decline</button><br />
+  </div>
+
+  <!-- Warn Form -->
+  <form method="post" id="warnForm" style="display: none">
+    {% csrf_token %} {{ warn_form.as_p }}
+    <button type="submit" name="form_type" value="warn">Submit Warn</button>
+  </form>
+</div>
+<br />
+
+{% else %}
+<p>Not Found! 404.</p>
+{% endif %} {% endblock %}
