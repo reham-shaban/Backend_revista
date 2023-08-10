@@ -4,21 +4,21 @@
 
 <!-- App Bar to choose Report Status -->
 {% if user.role == 'admin' %}
-  <div style="display: flex; background-color: #4CAF50; margin-top: 10px;">
-    <a href="/report/?status=redirected" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Redirected</a>
-    <a href="/report/?status=resolved" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Resolved</a>
+  <div class="status-app-bar">
+    <a href="/report/?status=redirected">Redirected</a>
+    <a href="/report/?status=resolved">Resolved</a>
   </div>
 {% endif %}
 
  <!-- App Bar to choose Report Type -->
-<div style="display: flex; background-color: #2196F3;">
-  <a href="/report/?type=chat{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Chat</a>
-  <a href="/report/?type=user{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">User</a>
-  <a href="/report/?type=post{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Post</a>
+<div class="type-app-bar">
+  <a href="/report/?type=chat{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Chat</a>
+  <a href="/report/?type=user{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">User</a>
+  <a href="/report/?type=post{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Post</a>
 </div>
 
 <!-- Drop down to choose Category -->
-<div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
+<div class="category-dropdown">
   <label for="reportCategory" style="font-size: 1rem; padding: 5px; font-weight: 800;">
     Choose a Category:
   </label>
@@ -40,17 +40,6 @@
     }
   }
 </script>
-
-<style>
-  .report-container {
-    width: 600px;
-    border: 2px solid #ff0000;
-    background-color: #fee8e8;
-    border-radius: 5px;
-    padding: 20px;
-    margin: 20px auto;
-  }
-</style>
 
 <!-- Report List -->
 {% if reports %} 

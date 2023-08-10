@@ -1,0 +1,72 @@
+/* Report container */
+.report-container {
+    width: 600px;
+    border: 2px solid #ff0000;
+    background-color: #fee8e8;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px auto;
+}
+
+/* Report header */
+.report-header h2 {
+  margin: 0;
+}
+
+/* User images */
+.user-images {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Image container */
+.image-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Image frame */
+.image-frame {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+/* Profile image frame */
+.profile-image-frame {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* User info */
+.user-info p {
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.action-div{
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    width: 100%;
+    justify-content: center;
+    gap: 5rem;
+}
+
+p{
+    margin-bottom: 10px; 
+    color: #555;
+}
+
+img{
+    max-width: 100%; 
+    height: auto;
+}

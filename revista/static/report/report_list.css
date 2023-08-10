@@ -1,10 +1,10 @@
-.app-bar {
+.status-app-bar {
   display: flex;
   background-color: #4CAF50;
   margin-top: 10px;
 }
 
-.app-bar a {
+.status-app-bar a {
   flex: 1;
   padding: 10px;
   text-align: center;
@@ -13,12 +13,12 @@
   font-size: 1rem;
 }
 
-.report-type-bar {
+.type-app-bar {
   display: flex;
   background-color: #2196F3;
 }
 
-.report-type-bar a {
+.type-app-bar a {
   flex: 1;
   padding: 10px;
   text-align: center;
