@@ -24,18 +24,10 @@ class Command(BaseCommand):
             {"name": "travel", "image": "travel.jpg"},
         ]
 
-        # for topic_data in topics:
-        #     Topic.objects.create(
-        #         name=topic_data["name"],
-        #         image=f'\\topics\{topic_data["image"]}',
-        #     )
-            
-        # edit topics path
-        i = 0
-        for topic in Topic.objects.all():
-            image = f'\\topics\{topics[i]["image"]}'
-            i = i + 1
-            topic.image = image
-            topic.save()
+        for topic_data in topics:
+            Topic.objects.create(
+                name=topic_data["name"],
+                image=f'\\topics\{topic_data["image"]}',
+            )
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database with dummy data.'))

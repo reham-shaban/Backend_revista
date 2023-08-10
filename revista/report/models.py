@@ -4,17 +4,18 @@ from accounts.models import CustomUser
 from posts.models import Post
 from chat.models import Chat
 
-TYPE = {
+TYPE = (
     ('user', 'User'), ('post', 'Post'), ('chat', 'Chat')
-}
+)
 
-CATEGORY = {
+CATEGORY = (
     ('harassment', 'Harassment'), ('spam', 'Spam'), ('inappropriate-content', 'Inappropriate content')
-}
+)
+    
 
-STATUS = {
+STATUS = (
     ('pending', 'Pending'), ('resolved', 'Resolved'), ('redirected', 'Redirected')
-}
+)
 
 # Create your models here.
 class Report(models.Model):

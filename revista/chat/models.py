@@ -3,19 +3,19 @@ from django.core.validators import FileExtensionValidator
 
 from accounts.models import CustomUser
 
-REACTIONS = {
+REACTIONS = (
     (1, 'like'),
     (2, 'love'),
     (3, 'haha'),
     (4, 'wow'),
     (5, 'sad'),
     (6, 'angry')
-}
+)
 
-TYPE = {
+TYPE = (
     ('text', 'Text'), ('image', 'Image'), ('voice_record', 'Voice Record')
-}
-
+)
+    
 class Chat(models.Model):
     user1 = models.ForeignKey(CustomUser, related_name='user1', null=True, on_delete=models.SET_NULL)
     user2 = models.ForeignKey(CustomUser, related_name='user2', null=True, on_delete=models.SET_NULL)

@@ -117,6 +117,8 @@ class LoginAPI(KnoxLoginView):
                 return Response('Wrong username!', status=status.HTTP_404_NOT_FOUND)
         
         return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
+
+
 # Reset password views
 # 1.take the username and send an email
 class ForgetPasswordView(APIView):
@@ -203,6 +205,65 @@ class ResetPasswordView(APIView):
         
         return Response({"message" : "successful"}, status=status.HTTP_200_OK)
 
+           
+# List all users
+class UserView(generics.ListCreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
+
+# Update User info
+class UserUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+            partial = kwargs.pop('partial', True)  # Set partial to True for PATCH requests
+            instance = self.get_object()
+            
+            # Deserialize the request data to check old and new passwords
+            serializer = ChangePasswordSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            # Check if the old password matches the user's current password
+            old_password = serializer.validated_data.get('old_password')
+            if old_password and not instance.check_password(old_password):
+                return Response({'error': 'Incorrect old password'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update the password if the new password is provided
+            new_password = serializer.validated_data.get('new_password')
+            if new_password:
+                instance.set_password(new_password)
+                instance.save()
+
+            # Update the user's other data if provided in the request
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            return Response(serializer.data)
+
+# Deactivate account
+class DeactivateAccountView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer  
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+        return Response({'message': 'Account deactivated successfully'})
+
+# Change Email views
 class ChangeEmailView(APIView):
     def post(self,request):
         username=request.data.get('username')
@@ -252,7 +313,6 @@ class CheckEmailCodeView(APIView):
         
         return Response({"message" : "successful"}, status=status.HTTP_200_OK)
         
-
 class ResetEmailView(APIView):
     def post(self, request):
         id= request.data.get('id')
@@ -277,64 +337,4 @@ class ResetEmailView(APIView):
         user.save()
         
         return Response({"message": "Email changed successfully"}, status=status.HTTP_200_OK)
-        
-        
-        
-        
-        
-        
-# List all users
-class UserView(generics.ListCreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAdminUser]
-
-# Update User info
-class UserUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    
-    def get_object(self):
-        return self.request.user
-
-    def update(self, request, *args, **kwargs):
-            partial = kwargs.pop('partial', True)  # Set partial to True for PATCH requests
-            instance = self.get_object()
-            
-            # Deserialize the request data to check old and new passwords
-            serializer = ChangePasswordSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-
-            # Check if the old password matches the user's current password
-            old_password = serializer.validated_data.get('old_password')
-            if old_password and not instance.check_password(old_password):
-                return Response({'error': 'Incorrect old password'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Update the password if the new password is provided
-            new_password = serializer.validated_data.get('new_password')
-            if new_password:
-                instance.set_password(new_password)
-                instance.save()
-
-            # Update the user's other data if provided in the request
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-
-            return Response(serializer.data)
-
-class DeactivateAccountView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer  
-
-    def get_object(self):
-        return self.request.user
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save()
-        return Response({'message': 'Account deactivated successfully'})
+     

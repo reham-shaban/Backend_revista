@@ -5,15 +5,15 @@ from django.utils import timezone
 import random
 
 # Create your models here.
-GENDER_CHOICES = {
+GENDER_CHOICES = (
     ('M', 'Male'),
     ('F', 'Female'),
-}
-
-ROLE = {
+)
+    
+ROLE = (
     ('admin', 'Admin'), ('moderator', 'Moderator'), ('regular-user', 'Regular User')
-}
-
+)
+    
 class CustomUser(AbstractUser):
     email = models.EmailField(blank=False, null=False, unique=True)
     profile_image = models.ImageField(default='profile_images/default.png', upload_to='profile_images/', blank=True, null=True)
@@ -26,6 +26,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
+    @staticmethod
     def generate_username(email):
         username = email.split('@')[0]
         username = "".join([c for c in username if c.isalpha()])
@@ -36,28 +37,39 @@ class CustomUser(AbstractUser):
        
         return username
     
+    
 class PasswordResetCode(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     code = models.IntegerField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default=timezone.now() + timezone.timedelta(minutes=30))
-         
+    expires_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # Only set expires_at when creating a new instance
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=30)
+        super().save(*args, **kwargs)
+
     def is_expired(self):
         return timezone.now() > self.expires_at
     
     def __str__(self):
         return f'code: {self.code}'
-    
-    
+  
+       
 class EmailChangeCode(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     code = models.IntegerField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default=timezone.now() + timezone.timedelta(minutes=30))
-         
+    expires_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # Only set expires_at when creating a new instance
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=30)
+        super().save(*args, **kwargs)
+
     def is_expired(self):
         return timezone.now() > self.expires_at
-    
+
     def __str__(self):
         return f'code: {self.code}'
    
