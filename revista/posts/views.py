@@ -27,9 +27,12 @@ class HomePostView(generics.ListCreateAPIView):
         queryset = Post.objects.all()
         topics_followed = TopicFollow.objects.filter(profile=profile)
         followings = Follow.objects.filter(follower=profile).values('followed__id')
+        blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
+        blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
         # filter queryset based on topics & users followed
         queryset = queryset.filter(Q(topics__in=topics_followed.values('topic')) | Q(author__id__in=followings))
-        
+        queryset = queryset.exclude(author__id__in=blocked_users)
+        queryset = queryset.exclude(author__id__in=blocked_by)
         # Annotate the queryset with the total points for each post
         queryset = queryset.annotate(
             total_points=Sum('pointed_post__value')
@@ -49,7 +52,21 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
+    def retrieve(self, request, *args, **kwargs):
+        instance=self.get_object()
+        profile=request.user.profile
+        author = instance.author
+    
+        author_blocked=Block.objects.filter(blocker=profile,blocked=author).exists()
+        profile_blocked=Block.objects.filter(blocker=author,blocked=profile).exists()
+        if author_blocked or profile_blocked:
+            return Response({"detail": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
+    
+    
+    
 # admin get all posts
 class PostView(generics.ListAPIView):
     queryset = Post.objects.all()
@@ -88,8 +105,16 @@ class DiscoverView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        profile =self.request.user.profile
         topic_id = self.kwargs.get('topic_id')
         queryset = Post.objects.all()
+            # Get blocked user IDs
+        blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
+        blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
+
+    # Exclude blocked users' posts
+        queryset = queryset.exclude(author__id__in=blocked_users)
+        queryset = queryset.exclude(author__id__in=blocked_by)
         if topic_id != 0:
             queryset=queryset.filter(topics__id=topic_id)
         queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
@@ -102,6 +127,11 @@ class GeneralView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         queryset = Post.objects.all()
+        profile =self.request.user.profile
+        blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
+        blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
+        queryset = queryset.exclude(author__id__in=blocked_users)
+        queryset = queryset.exclude(author__id__in=blocked_by)
         queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
         queryset = queryset.order_by('-total_points','-created_at')
         return queryset
@@ -113,12 +143,21 @@ class SearchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = CustomUserFilter
+    def get_queryset(self):
+        # Get the current user's profile
+        profile = self.request.user.profile
 
+        # Get a list of profiles that the current user has blocked
+        blocked_profiles = Block.objects.filter(blocker=profile).values_list('blocked', flat=True)
+        blocked_by = Block.objects.filter(blocked=profile).values_list('blocker',flat=True)
+        # Exclude profiles that are blocked from the queryset
+        queryset = CustomUser.objects.exclude(profile__in=blocked_profiles)
+        queryset = CustomUser.objects.exclude(profile__in=blocked_by)
+        return queryset
 
 # Comment
 # [POST]: create comment, [GET]: comments list for post_id
 class CommentView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated] 
@@ -131,8 +170,14 @@ class CommentView(generics.ListCreateAPIView):
         return Response(self.serializer_class(comment).data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
+        queryset = Comment.objects.all()
+        profile =self.request.user.profile
         post_id = self.kwargs['post_id']
         queryset=Comment.objects.filter(post__id=post_id)
+        blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
+        blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
+        queryset = queryset.exclude(author__id__in=blocked_users)
+        queryset = queryset.exclude(author__id__in=blocked_by)
         return queryset
 
 # single comment [GET ,PUT, PATCH, DELETE]
@@ -146,7 +191,6 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 # Reply
 # [POST]: create reply, [GET]: replies list for comment_id
 class ReplyView(generics.ListCreateAPIView):
-    queryset=Reply.objects.all()
     serializer_class=ReplySerializer
     authentication_classes=[TokenAuthentication]
     permission_classes=[IsAuthenticated]
@@ -162,8 +206,12 @@ class ReplyView(generics.ListCreateAPIView):
         return Response(self.serializer_class(reply).data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
+        profile =self.request.user.profile
         comment_id=self.kwargs['comment_id']
-        queryset=Reply.objects.filter(comment__id=comment_id)
+        blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
+        blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
+        queryset = Reply.objects.filter(comment__id=comment_id).exclude(author__id__in=blocked_users)
+        queryset = Reply.objects.filter(comment__id=comment_id).exclude(author__id__in=blocked_by)
         return queryset
 
 # single replies [GET ,PUT, PATCH, DELETE]
@@ -203,12 +251,16 @@ class SavedPostView(generics.ListAPIView):
     serializer_class = SavedPostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
     def get_queryset(self):
         profile = self.request.user.profile
         queryset = SavedPost.objects.filter(profile=profile)
+        blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
+        blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
+        queryset= queryset.exclude(post__author_id__in=blocked_users)
+        queryset = queryset.exclude(author__id__in=blocked_by)
         return queryset
         
+
 #[POST] save a post
 class SavedPostCreateView(generics.CreateAPIView):
     queryset = SavedPost.objects.all()
@@ -253,7 +305,15 @@ class HistoryView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         user = self.request.user
-        queryset = SearchHistory.objects.filter(user=user)
+        blocked_profiles = Block.objects.filter(blocker=user.profile).values_list('blocked', flat=True)
+        blocked_by_profiles = Block.objects.filter(blocked=user.profile).values_list('blocker', flat=True)
+        
+        # Exclude search history entries where searched user's profile is in your blocked list
+        queryset = SearchHistory.objects.filter(user=user).exclude(searched_user__profile__in=blocked_by_profiles)
+        
+        # Exclude search history entries where you are in the searched user's blocked list
+        queryset = queryset.exclude(searched_user__profile__in=blocked_profiles)
+        
         return queryset
 
 

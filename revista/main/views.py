@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
-
+from django.db import IntegrityError
 from .models import Profile, Topic, TopicFollow, Follow,Block
 from .serializers import ProfileSerializer, VistorProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer, FollowingListSerializer, FollowersListSerializer, BlockSerializer, BlockedListSerializer
 
@@ -127,7 +127,11 @@ class BlockUsers(generics.CreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     def perform_create(self, serializer):
-        serializer.save(blocker=self.request.user.profile)
+        serializer.is_valid(raise_exception=True)  # This will raise a validation error if needed
+        try:
+            serializer.save(blocker=self.request.user.profile)
+        except IntegrityError:
+            return Response({"error": "User already blocked."}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class UnblockUsers(generics.DestroyAPIView):
