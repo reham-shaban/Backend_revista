@@ -2,35 +2,42 @@
 
 <div class="role">{{user.role}}</div>
 
-<!-- Choose Status -->
+<!-- App Bar to choose Report Status -->
 {% if user.role == 'admin' %}
-  <p>
-    <a href="/report/?status=redirected">Redirected</a> -
-    <a href="/report/?status=resolved">Resolved</a>
-  </p>
+  <div style="display: flex; background-color: #4CAF50; margin-top: 10px;">
+    <a href="/report/?status=redirected" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Redirected</a>
+    <a href="/report/?status=resolved" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Resolved</a>
+  </div>
 {% endif %}
 
-<!-- Drop Down -->
-<div style="display: flex; flex-direction: column; align-items: flex-start;">
-  <label for="reportType" style="font-size: 1rem; padding: 5px; font-weight: 800;">
-      Choose a type:
+ <!-- App Bar to choose Report Type -->
+<div style="display: flex; background-color: #2196F3;">
+  <a href="/report/?type=chat{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Chat</a>
+  <a href="/report/?type=user{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">User</a>
+  <a href="/report/?type=post{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="flex: 1; padding: 10px; text-align: center; text-decoration: none; color: #fff; font-size: 1rem;">Post</a>
+</div>
+
+<!-- Drop down to choose Category -->
+<div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
+  <label for="reportCategory" style="font-size: 1rem; padding: 5px; font-weight: 800;">
+    Choose a Category:
   </label>
 
-  <select name="reportType" id="reportType" onchange="navigate()" style="padding: 5px; font-size: 16px; border: 1px solid #ccc;">
-      <option value="" disabled selected>----</option>
-      <option value="/report/?type=chat{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="background-color: #f2f2f2;">Chat</option>
-      <option value="/report/?type=user{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="background-color: #e0e0e0;">User</option>
-      <option value="/report/?type=post{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" style="background-color: #f2f2f2;">Post</option>
+  <select name="reportCategory" id="reportCategory" onchange="navigate()" style="padding: 5px; font-size: 16px; border: 1px solid #ccc;">
+    <option value="/report/?{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if not request.GET.category %}selected{% endif %} style="background-color: #f2f2f2;">All</option>
+    <option value="/report/?category=spam{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if request.GET.category == 'spam' %}selected{% endif %} style="background-color: #f2f2f2;">Spam</option>
+    <option value="/report/?category=harassment{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if request.GET.category == 'harassment' %}selected{% endif %} style="background-color: #e0e0e0;">Harassment</option>
+    <option value="/report/?category=inappropriate-content{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if request.GET.category == 'inappropriate-content' %}selected{% endif %} style="background-color: #f2f2f2;">Inappropriate content</option>
   </select>
 </div>
 
 <script>
   function navigate() {
-      var selectElement = document.getElementById("reportType");
-      var selectedValue = selectElement.options[selectElement.selectedIndex].value;
-      if (selectedValue) {
-          window.location.href = selectedValue;
-      }
+    var selectElement = document.getElementById("reportCategory");
+    var selectedValue = selectElement.options[selectElement.selectedIndex].value;
+    if (selectedValue) {
+      window.location.href = selectedValue;
+    }
   }
 </script>
 

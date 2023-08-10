@@ -30,11 +30,14 @@ class ReportList(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
         # get queryset and filter status & type
         queryset = super().get_queryset()
         type = self.request.GET.get('type')
+        category = self.request.GET.get('category')
         
         if status:
             queryset = queryset.filter(status=status)
         if type:
             queryset = queryset.filter(type=type)
+        if category:
+            queryset = queryset.filter(category=category)
                      
         return queryset
     
