@@ -72,7 +72,6 @@ class TopicSerializer(serializers.ModelSerializer):
         
 # Topic Follow
 class TopicFollowSerializer(serializers.ModelSerializer):
-    topic = TopicSerializer(read_only=True)
     class Meta:
         model = TopicFollow
         fields = ['id', 'profile', 'topic']
