@@ -1,7 +1,6 @@
-import json
-from django.views import generic, View
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.shortcuts import redirect, get_object_or_404
+from django.views import generic, View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Report, Warn
@@ -68,13 +67,29 @@ class ReportDetail(LoginRequiredMixin, PermissionRequiredMixin, generic.DetailVi
         
         context['report_count'] = report_count
         return context
+   
+def mod_comment(request, report_id):
+    report = get_object_or_404(Report, id=report_id)
+    report.moderator = request.user
+    form = ReportUpdateForm(request.POST, instance=report)
     
+    if request.method == 'POST' and form.is_valid():        
+        form.save()
+        return redirect('report:reports')  # Redirect to report list page
+            
+    return render(request, "report/mod_comment.html", {'form':form})
+    
+# Actions
 # delete post
 class PostDeleteView(View):
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
+        # change report status then delete post
+        report = Report.objects.get(reported_post=post)
+        report.status = 'resolved'
+        report.save()       
         post.delete()
-        return redirect('report:reports')  # Redirect to report list page
+        return redirect('report:mod-commnet', report.pk)
 
 # warn user
 class WarnView(View):
@@ -82,8 +97,22 @@ class WarnView(View):
         report = get_object_or_404(Report, pk=pk)
         warned_user = report.reported_user
         comment = request.POST.get('comment')
-        print(comment)
         warn = Warn.objects.create(report=report, warned_user=warned_user, comment=comment)
-        print(warn)
-        return redirect('report:reports')
+        report.status = 'resolved'
+        report.save()
+        return redirect('report:mod-commnet', report.pk)
+ 
+# decline
+class DeclineView(View):
+    def get(self, reques, pk): #report pk
+        report = get_object_or_404(Report, pk=pk)
+        report.status = 'resolved'
+        report.save()
+        return redirect('report:mod-commnet', report.pk)
     
+class RedirectView(View):
+    def get(self, reques, pk): #report pk
+        report = get_object_or_404(Report, pk=pk)
+        report.status = 'redirected'
+        report.save()
+        return redirect('report:mod-commnet', report.pk)

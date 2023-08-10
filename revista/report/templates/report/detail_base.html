@@ -193,15 +193,20 @@
     </script>
 
     <!-- Request admin to ban user -->
-    <form method="post">
-      {% csrf_token %}
-      <button type="submit" name="form_type" value="redirect">
-        Request admin to ban user</button
-      ><br />
-    </form>
+    <div>
+      <form action="{% url 'report:redirect' report.id %}" method="get">
+        {% csrf_token %}
+        <button type="submit">Request admin to ban user</button><br />
+      </form>
+    </div>
 
     <!-- Decline -->
-    <button type="submit">Decline</button><br />
+    <div>
+      <form action="{% url 'report:decline' report.id %}" method="get">
+        {% csrf_token %}
+        <button type="submit">Decline</button><br />
+      </form>
+    </div>
   </div>
 
   <!-- Warn Form -->

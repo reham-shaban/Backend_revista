@@ -34,14 +34,28 @@
   }
 </script>
 
-
+<style>
+  .report-container {
+    width: 600px;
+    border: 2px solid #ff0000;
+    background-color: #fee8e8;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px auto;
+  }
+</style>
 
 <!-- Report List -->
 {% if reports %} 
   {% for report in reports %}
     <h3>
       <a href="/report/{{report.id}}" style="color: black">
-        {{report}}
+        <div class="report-container">
+          <p><b>Category : </b> {{ report.category }}</p>
+          <p><b>Reporter : </b> {{ report.reporter }}
+          - <b>Reported : </b> {{ report.reported_user }}</p>         
+          {% if report.description %}<p>{{ report.description }}</p>{% endif %}            
+        </div>
       </a>
     </h3>
   {% endfor %} 
