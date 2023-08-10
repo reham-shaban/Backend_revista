@@ -4,7 +4,7 @@ from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
-from .models import Report
+from .models import Report, Warn
 from posts.models import Post
 from chat.models import Message
 from .forms import ReportUpdateForm, WarnForm
@@ -68,37 +68,22 @@ class ReportDetail(LoginRequiredMixin, PermissionRequiredMixin, generic.DetailVi
         
         context['report_count'] = report_count
         return context
- 
-    def post(self, request, *args, **kwargs):
-        report = self.get_object()
-        form_type = request.POST.get('form_type')
-        
-        if form_type == 'report':
-            report_form = ReportUpdateForm(request.POST, instance=report)
-            if report_form.is_valid():
-                report_form.save()
-                return redirect('report:report-detail', pk=report.pk)
-            
-        elif form_type == 'warn':
-            warn_form = WarnForm(request.POST)
-            if warn_form.is_valid():
-                warn = warn_form.save(commit=False)
-                warn.report = report
-                warn.warned_user = report.reported_user
-                warn.save()
-                return redirect('report:report-detail', pk=report.pk)
-            
-        elif form_type == 'redirect':
-            report.status = 'redirected'
-            report.save()
-            return redirect('report:report-detail', pk=report.pk)
-        
-        context = self.get_context_data(report_form=report_form, warn_form=warn_form)
-        return self.render_to_response(context)
-
-
+    
+# delete post
 class PostDeleteView(View):
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         post.delete()
         return redirect('report:reports')  # Redirect to report list page
+
+# warn user
+class WarnView(View):
+    def post(self, request, pk): # report pk
+        report = get_object_or_404(Report, pk=pk)
+        warned_user = report.reported_user
+        comment = request.POST.get('comment')
+        print(comment)
+        warn = Warn.objects.create(report=report, warned_user=warned_user, comment=comment)
+        print(warn)
+        return redirect('report:reports')
+    

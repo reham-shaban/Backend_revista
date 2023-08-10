@@ -205,12 +205,14 @@
   </div>
 
   <!-- Warn Form -->
-  <form method="post" id="warnForm" style="display: none">
-    {% csrf_token %} {{ warn_form.as_p }}
-    <button type="submit" name="form_type" value="warn">Submit Warn</button>
-  </form>
-</div>
-<br />
+  <div>
+    <form action="{% url 'report:warn-user' report.id %}" method="post" id="warnForm" style="display: none">
+      {% csrf_token %}
+      <label for="comment">Comment:</label>
+      <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+      <button type="submit">Submit Warn</button>
+    </form>
+  </div>
 
 {% else %}
 <p>Not Found! 404.</p>

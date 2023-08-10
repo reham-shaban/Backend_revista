@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from ..models import Report
+from ..models import Report, Warn
 
-
+# Report
 class ReportSerializer(serializers.ModelSerializer):
      reporter = serializers.ReadOnlyField(source='get_reporter')
 
@@ -16,3 +16,9 @@ class ReportSerializer(serializers.ModelSerializer):
           reporter_id=self.context['request'].user.id,
           )
           return report
+
+# Warn
+class WarnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Warn
+        fields = '__all__'
