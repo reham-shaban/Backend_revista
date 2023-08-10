@@ -257,7 +257,7 @@ class SavedPostView(generics.ListAPIView):
         blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
         blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
         queryset= queryset.exclude(post__author_id__in=blocked_users)
-        queryset = queryset.exclude(author__id__in=blocked_by)
+        queryset = queryset.exclude(post__author__id__in=blocked_by)
         return queryset
         
 
