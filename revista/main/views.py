@@ -95,9 +95,14 @@ class FollowingListView(generics.ListAPIView):
     
     def get_queryset(self):
         queryset = Follow.objects.all()
-        queryset = queryset.filter(follower=self.request.user.profile)
+        profile=self.request.user.profile
+        queryset = queryset.filter(follower=profile)
+        blocked = Block.objects.filter(blocker=profile).values_list('blocked', flat=True)
+        blocked_by=Block.objects.filter(blocked=profile).values_list('blocker', flat=True)
+        queryset = queryset.exclude(followed__id__in=blocked)
+        queryset = queryset.exclude(followed__id__in=blocked_by)
         return queryset 
-              
+        
 # List my followers [GET]
 class FollowersListView(generics.ListAPIView):
     serializer_class = FollowersListSerializer
@@ -105,8 +110,13 @@ class FollowersListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        profile=self.request.user.profile
         queryset = Follow.objects.all()
         queryset = queryset.filter(followed=self.request.user.profile)
+        blocked = Block.objects.filter(blocker=profile).values_list('blocked', flat=True)
+        blocked_by=Block.objects.filter(blocked=profile).values_list('blocker', flat=True)
+        queryset = queryset.exclude(follower__id__in=blocked)
+        queryset = queryset.exclude(follower__id__in=blocked_by)  
         return queryset
     
     

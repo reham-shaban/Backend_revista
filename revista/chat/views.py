@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 
 from accounts.models import CustomUser
-from main.models import Profile
+from main.models import Profile, Block
 from posts.models import Post
 from .models import Chat, Message
 from .serializers import ChatContactSerializer, ChatSerializer, MessageSerializer
@@ -46,11 +46,21 @@ class ChatContact(generics.ListAPIView):
         
         queryset = Chat.objects.annotate(latest_message_time=latest_message_time)
         user = self.request.user
+        profile = user.profile
+        blocked_users = Block.objects.filter(blocker=profile).values_list('blocked', flat=True)
+        blocked_by = Block.objects.filter(blocked=profile).values_list('blocker',flat=True)
+        queryset = queryset.exclude(
+        (Q(user1__profile=profile) & Q(user2__profile__in=blocked_users)) | 
+        (Q(user1__profile=profile) & Q(user2__profile__in=blocked_by)) |
+        (Q(user2__profile=profile) & Q(user1__profile__in=blocked_users)) | 
+        (Q(user2__profile=profile) & Q(user1__profile__in=blocked_by)))
+        
         queryset = queryset.filter(Q(user1=user) | Q(user2=user))
+        
         queryset = queryset.order_by('-latest_message_time')
         return queryset
 
-# list all chats
+# list all chats admin
 class ChatView(generics.ListAPIView):
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
