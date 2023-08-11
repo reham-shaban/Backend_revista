@@ -1,29 +1,85 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% block content %} 
 
-<div class="role">{{user.role}}</div>
-
-<!-- App Bar to choose Report Status -->
+<div   class="navBar">
+  <style>
+    	body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+}
+    .navBar{
+      background-color: #aa333d;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      margin: 0px;
+      padding: 0px;
+    }
+    .top{
+      display: flex;
+      justify-content: space-between;
+    }
+    #reportCategory{
+      margin: 20px;
+      width: 20px;
+      float: inline-start;
+    }
+    .role{
+      color: white;
+      padding-left: 10px;
+      padding-top: 10px;
+      font-size: larger;
+      padding-bottom: 10px;
+    }
+  #tab-bar {
+    display: flex;
+    justify-content: space-around;
+    border: 1px solid white;
+      }
+  
+  .tab {
+    display: flex;
+    justify-content: center;
+   align-items: center;
+    width: 500px;
+    margin: 0px;
+    padding: 10px;
+    cursor: pointer;
+    color: white;
+    border: 1px solid white;
+  }
+  .tab:hover {
+   background-color: grey;
+   }
+   a{ 
+    margin-top: 20px;
+    margin-left: 10px;
+    background-color: whitesmoke;
+    color: black;
+    padding: 5px;
+    border-radius: 10px;
+   }
+   a:hover{
+    background-color: #aa333d;
+   }
+  </style>
+<div class="top">
+<div class="left-side">
+  <div class="role"> Welcome {{user.role}}</div>
+    <!-- App Bar to choose Report Status -->
 {% if user.role == 'admin' %}
-  <div class="status-app-bar">
-    <a href="/report/?status=redirected">Redirected</a>
-    <a href="/report/?status=resolved">Resolved</a>
-  </div>
-{% endif %}
-
- <!-- App Bar to choose Report Type -->
-<div class="type-app-bar">
-  <a href="/report/?type=chat{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Chat</a>
-  <a href="/report/?type=user{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">User</a>
-  <a href="/report/?type=post{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Post</a>
+<div class="status-app-bar">
+  <a href="/report/?status=redirected">Redirected</a>
+  <a href="/report/?status=resolved">Resolved</a>
 </div>
-
-<!-- Drop down to choose Category -->
+{% endif %}
+</div>
+  <!-- Drop down to choose Category -->
 <div class="category-dropdown">
-  <label for="reportCategory" style="font-size: 1rem; padding: 5px; font-weight: 800;">
+  <label for="reportCategory" style="font-size: 1rem; padding: 5px; font-weight: 800; color: white;">
     Choose a Category:
   </label>
 
-  <select name="reportCategory" id="reportCategory" onchange="navigate()" style="padding: 5px; font-size: 16px; border: 1px solid #ccc;">
+  <select name="reportCategory" id="reportCategory" onchange="Drop()" style="padding: 5px; font-size: 16px; border: 1px solid #ccc;">
     <option value="/report/?{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if not request.GET.category %}selected{% endif %} style="background-color: #f2f2f2;">All</option>
     <option value="/report/?category=spam{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if request.GET.category == 'spam' %}selected{% endif %} style="background-color: #f2f2f2;">Spam</option>
     <option value="/report/?category=harassment{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" {% if request.GET.category == 'harassment' %}selected{% endif %} style="background-color: #e0e0e0;">Harassment</option>
@@ -31,12 +87,25 @@
   </select>
 </div>
 
+</div>
+  <div id="tab-bar">
+    <div id="tab-chat" class="tab" onclick="navigate('/report/?type=chat')">Chat</div>
+    <div id="tab-user" class="tab" onclick="navigate('/report/?type=user')">User</div>
+    <div id="tab-post" class="tab" onclick="navigate('/report/?type=post')">Post</div>
+  </div>
+</div>
+
 <script>
-  function navigate() {
+  function Drop() {
     var selectElement = document.getElementById("reportCategory");
     var selectedValue = selectElement.options[selectElement.selectedIndex].value;
     if (selectedValue) {
       window.location.href = selectedValue;
+    }
+  }
+  function navigate(url){
+    if (url) {
+      window.location.href = url;
     }
   }
 </script>
@@ -44,15 +113,29 @@
 <!-- Report List -->
 {% if reports %} 
   {% for report in reports %}
-    <h3>
-      <a href="/report/{{report.id}}" style="color: black">
+    <h3 style="display: flex; justify-content: center; align-items: center;">
+      <a href="/report/{{report.id}}" style="color: black; border: opx;">
         <div class="report-container">
-          <p><b>Category : </b> {{ report.category }}</p>
-          <p><b>Reporter : </b> {{ report.reporter }}
-          - <b>Reported : </b> {{ report.reported_user }}</p>         
+          <p  style=" display: flex; justify-content: space-around; background-color: #aa333d; border-radius: 10px; color: white; padding: 20px;"
+          ><b>Reporter : </b> {{ report.reporter }} <b>Category : </b> {{ report.category }}</p>
+
+          <p style=" flex-direction:row;">
+          <b>Reported : </b> {{ report.reported_user }}
+        </p>  
+          {% if report.description %}<p>description:</p>{% endif %}  
           {% if report.description %}<p>{{ report.description }}</p>{% endif %}            
         </div>
       </a>
+      <style>
+        .report-container{
+          background-color: whitesmoke;
+          width: 500px;
+          height: 250px;
+          margin: 10px;
+          border: 0px;
+          flex-direction: column;
+        }
+      </style>
     </h3>
   {% endfor %} 
 {% else %}
