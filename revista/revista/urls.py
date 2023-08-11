@@ -16,8 +16,9 @@ urlpatterns = [
     path('report/', include('report.urls')),
     path('report-app/', include('report.api.urls')),
    
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Customize admin site
 admin.site.site_header  =  "Revista"  

@@ -1,0 +1,44 @@
+.status-app-bar {
+  display: flex;
+  background-color: #4CAF50;
+  margin-top: 10px;
+}
+
+.status-app-bar a {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.type-app-bar {
+  display: flex;
+  background-color: #2196F3;
+}
+
+.type-app-bar a {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.category-dropdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+.report-container {
+  width: 600px;
+  border: 2px solid #ff0000;
+  background-color: #fee8e8;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 20px auto;
+}

@@ -12,7 +12,6 @@ CATEGORY = (
     ('harassment', 'Harassment'), ('spam', 'Spam'), ('inappropriate-content', 'Inappropriate content')
 )
     
-
 STATUS = (
     ('pending', 'Pending'), ('resolved', 'Resolved'), ('redirected', 'Redirected')
 )
@@ -40,3 +39,6 @@ class Warn(models.Model):
     warned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='warned_user')
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.comment
