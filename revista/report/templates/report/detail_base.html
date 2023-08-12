@@ -101,27 +101,28 @@
 </style>
 
 <div class="report-design" >
-  {% if report %}
-  <!-- Report INFO -->
-<div class="header">  
-  <p><b>Reporter : </b> {{ report.reporter.username }}</p>  
-</div>
-<div class="subheader">
-  <p><b>Report type : </b> {{report.type}}</p>
-  <p><b>Category : </b> {{ report.category }}</p>
-</div>
+
+{% if report %}
+
+<!-- Report INFO -->
+  <div class="header">  
+    <p><b>Reporter : </b> {{ report.reporter.username }}</p>  
+  </div>
+  <div class="subheader">
+    <p><b>Report type : </b> {{report.type}}</p>
+    <p><b>Category : </b> {{ report.category }}</p>
+  </div>
+
   <!-- Reporter Description -->
-<div class="description">
-  {% if report.description %}
-  <p>description:</p>
-  <p>{{ report.description }}</p>
-  {% endif %}
-
-</div>
-
-<p>This is report number {{ report_count }} for {{report.reported_user.username}}</p>  
-  <div class="report-container">
+  <div class="description">
+    {% if report.description %}
+    <p>description:</p>
+    <p>{{ report.description }}</p>
+    {% endif %}
+  </div>
+  <p>This is report number {{ report_count }} for {{report.reported_user.username}}</p>
   
+<div class="report-container">
   <!-- Post -->
   {% if report.type == 'post' %}  
     {% if post %}
@@ -270,13 +271,23 @@
         }
       </script>
 
-      <!-- Request admin to ban user -->
-      <div>
-        <form action="{% url 'report:redirect' report.id %}" method="get">
-          {% csrf_token %}
-          <button type="submit">Request admin to ban user</button><br />
-        </form>
-      </div>
+      <!-- Ban -->
+      {% if user.role == 'admin' %}
+        <div>
+          <form action="{% url 'report:ban' report.reported_user.id %}" method="get">
+            {% csrf_token %}
+            <button type="submit">Ban user</button><br />
+          </form>
+        </div>
+      {% else %}
+        <!-- Request admin to ban user -->
+        <div>
+          <form action="{% url 'report:redirect' report.id %}" method="get">
+            {% csrf_token %}
+            <button type="submit">Request admin to ban user</button><br />
+          </form>
+        </div>
+      {% endif %} 
 
       <!-- Decline -->
       <div>
@@ -298,6 +309,16 @@
     </div>
 
 </div>
+
+<!-- Mod comment for admin -->
+{% if user.role == 'admin' %}
+  <div>
+    <p><b>Moderator:</b> {{report.moderator.username}}</p>
+    <p><b>Moderator comment:</b> {{report.moderator_comment}}</p>
+  </div>
+{% endif %}
+  
+
 {% else %}
   <p>Not Found! 404.</p>
 {% endif %} 

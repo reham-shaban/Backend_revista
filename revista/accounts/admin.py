@@ -8,7 +8,7 @@ from .models import CustomUser, PasswordResetCode, EmailChangeCode
 class CustomUserAdmin(UserAdmin):
     list_display = (
         'username', 'email', 'first_name', 'last_name','is_active' , 'is_staff',
-        'role', 'is_online', 'profile_image', 'birth_date', 'phone_number', 'gender'
+        'role', 'is_online', 'is_banned', 'profile_image', 'birth_date', 'phone_number', 'gender'
         )
 
     fieldsets = (
@@ -28,7 +28,7 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('last_login', 'date_joined')
         }),
         ('Additional info', {
-            'fields': ('role', 'is_online', 'profile_image', 'birth_date', 'phone_number', 'gender')
+            'fields': ('role', 'is_online', 'is_banned', 'profile_image', 'birth_date', 'phone_number', 'gender')
         })
     )
 
@@ -49,7 +49,7 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('last_login', 'date_joined')
         }),
         ('Additional info', {
-            'fields': ('role', 'is_online', 'profile_image', 'birth_date', 'phone_number', 'gender')
+            'fields': ('role', 'is_online', 'is_banned', 'profile_image', 'birth_date', 'phone_number', 'gender')
         })
     )
 
