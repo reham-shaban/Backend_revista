@@ -1,73 +1,77 @@
 {% extends 'base.html' %} 
 {% block content %} 
-<div class="report-design" >
-<style>
-  	body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.report-design{
-  flex-direction: column;
-  display: flex;
-  justify-self: center;
-  align-self: center;
-border-radius: 20px;
-background-color: whitesmoke;
-height:100%;
-}
-.header{
-  display: flex; justify-content: left;
-  background-color: #aa333d;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding: 10px;
-  color: white;
-}
-.subheader{
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-}
-.description{
-  padding: 10px;
 
-}
-.action{ 
-  padding: 10px;
-display: flex;
-flex-direction: column;
-}
-.action-div{
-  padding: 10px;
-  display: flex;
-  justify-content: space-evenly;
-}
-button{
-  border-radius: 10px;
-  background-color: #aa333d;
-}
-button:hover{
-  background-color: grey;
-}
-.report-container{
-background-color: white;
-display: flex;
-align-self: center;
-flex-direction: column;
-width: 500px;
-border-radius: 10px;
-}
-h1{
-  display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .report-design{
+    flex-direction: column;
+    display: flex;
+    justify-self: center;
+    align-self: center;
+    border-radius: 20px;
+    background-color: whitesmoke;
+    height:100%;
+  }
+  .header{
+    display: flex; justify-content: left;
+    background-color: #aa333d;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 10px;
+    color: white;
+  }
+  .subheader{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  .description{
+    padding: 10px;
+
+  }
+  .action{ 
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .action-div{
+    padding: 10px;
+    display: flex;
+    justify-content: space-evenly;
+  }
+  button{
+    border-radius: 10px;
+    background-color: #aa333d;
+  }
+  button:hover{
+    background-color: grey;
+  }
+  .report-container{
+    background-color: white;
+    display: flex;
+    align-self: center;
+    flex-direction: column;
+    width: 500px;
+    border-radius: 10px;
+  }
+  h1{
+    display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     color: white;
-}
+  }
+
 </style>
+
+<div class="report-design" >
   {% if report %}
   <!-- Report INFO -->
 <div class="header">  

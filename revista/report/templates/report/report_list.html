@@ -1,35 +1,35 @@
 {% extends 'base.html' %} {% block content %} 
 
-<div   class="navBar">
-  <style>
-    	body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-}
-    .navBar{
-      background-color: #aa333d;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-      margin: 0px;
-      padding: 0px;
-    }
-    .top{
-      display: flex;
-      justify-content: space-between;
-    }
-    #reportCategory{
-      margin: 20px;
-      width: 20px;
-      float: inline-start;
-    }
-    .role{
-      color: white;
-      padding-left: 10px;
-      padding-top: 10px;
-      font-size: larger;
-      padding-bottom: 10px;
-    }
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+  }
+  .navBar{
+    background-color: #aa333d;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin: 0px;
+    padding: 0px;
+  }
+  .top{
+    display: flex;
+    justify-content: space-between;
+  }
+  #reportCategory{
+    margin: 20px;
+    width: 20px;
+    float: inline-start;
+  }
+  .role{
+    color: white;
+    padding-left: 10px;
+    padding-top: 10px;
+    font-size: larger;
+    padding-bottom: 10px;
+  }
   #tab-bar {
     display: flex;
     justify-content: space-around;
@@ -61,7 +61,9 @@
    a:hover{
     background-color: #aa333d;
    }
-  </style>
+</style>
+
+<div   class="navBar">
 <div class="top">
 <div class="left-side">
   <div class="role"> Welcome {{user.role}}</div>
