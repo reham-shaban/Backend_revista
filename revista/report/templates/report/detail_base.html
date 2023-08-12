@@ -1,48 +1,136 @@
 {% extends 'base.html' %} 
 {% block content %} 
+<div class="report-design" >
+<style>
+  	body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.report-design{
+  flex-direction: column;
+  display: flex;
+  justify-self: center;
+  align-self: center;
+border-radius: 20px;
+background-color: whitesmoke;
+height:100%;
+}
+.header{
+  display: flex; justify-content: left;
+  background-color: #aa333d;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  padding: 10px;
+  color: white;
+}
+.subheader{
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+.description{
+  padding: 10px;
 
-{% if report %}
+}
+.action{ 
+  padding: 10px;
+display: flex;
+flex-direction: column;
+}
+.action-div{
+  padding: 10px;
+  display: flex;
+  justify-content: space-evenly;
+}
+button{
+  border-radius: 10px;
+  background-color: #aa333d;
+}
+button:hover{
+  background-color: grey;
+}
+.report-container{
+background-color: white;
+display: flex;
+align-self: center;
+flex-direction: column;
+width: 500px;
+border-radius: 10px;
+}
+h1{
+  display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    color: white;
+}
+</style>
+  {% if report %}
   <!-- Report INFO -->
+<div class="header">  
+  <p><b>Reporter : </b> {{ report.reporter.username }}</p>  
+</div>
+<div class="subheader">
   <p><b>Report type : </b> {{report.type}}</p>
-  <p><b>Category : </b> {{ report.category }}</p>
-  <p><b>Reporter : </b> {{ report.reporter.username }}</p>
-
+<p><b>Category : </b> {{ report.category }}</p>
+</div>
   <!-- Reporter Description -->
+<div class="description">
   {% if report.description %}
+  <p>description:</p>
   <p>{{ report.description }}</p>
   {% endif %}
 
-  <p>
-    This is report number {{ report_count }} for {{report.reported_user.username}}
-  </p>
+</div>
 
-
+<p>This is report number {{ report_count }} for {{report.reported_user.username}}</p>  
   <div class="report-container">
+  
   <!-- Post -->
   {% if report.type == 'post' %}  
     {% if post %}
-      <p >
-        <b>Author:</b> {{ post.author.user }}
+    <h1 style=
+    "display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    color: white;
+    "> Post Details </h1>
+      <p style="display:flex; justify-content: left; padding: 10px; ">
+        <b>Author: </b>   {{ post.author.user }}
       </p>
-      <p>
-        <b>Topics:</b>
+      <p style="display:  flex; padding: 10px;">
+        <b >Topics:</b>
         {% for topic in post.topics.all %}
-        {{ topic.name }}
+        <b 
+        style=
+        "background-color: grey; border-radius: 10px;
+        color: white;
+         width:min-content; padding: 10px; display:  
+        flex; flex-direction: row;
+        margin-top: 20px;
+        margin-inline: 5px;
+        justify-content: center ;
+        align-items: center;
+        "
+         >{{ topic.name }}</b>
         {% if not forloop.last %}, {% endif %} {% endfor %}
       </p>
-      <p>
+      <p style="flex-direction: column; display: flex;padding: 10px;">
         <b>Content:</b> {{ post.content }}
       </p>
-      <p>
+      <p style="padding: 10px;">
         {% if post.image %}
         <b>Image:</b>
-        <img
+        <img style="display: flex; justify-self: center; align-self: center;padding: 10px;"
           src="{{ post.image.url }}"
           alt="Reported Post Image"
         />
         {% endif %}
       </p>
-      <p>
+      <p style="padding: 10px;">
         {% if post.link %}
         <b>Link:</b>
         <a href="{{ post.link }}" target="_blank">{{ post.link }}</a>
@@ -57,10 +145,19 @@
 
   <!-- Chat -->
   {% if report.type == 'chat' %}
-    <h1>Chat Detail</h1>
-    <h2>Users: {{ chat.user1 }} - {{ chat.user2 }}</h2>
-    <h3>Last 10 Messages:</h3>
-    <ul>
+    <h1 style="display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    color: white;
+    ">Chat Detail</h1>
+    <h2 style="padding: 10px;">Users: {{ chat.user1 }} - {{ chat.user2 }}</h2>
+    <h3 style="padding: 10px;">Last 10 Messages:</h3>
+    <ul 
+    style="background-color: whitesmoke; margin: 10px; border-radius: 10px;
+    overflow: scroll;
+  
+    ;
+    ">
         {% for message in messages %}
         <li>
             <p>{{ message.author }}: {{ message.text }}</p>
@@ -82,9 +179,13 @@
   {% if report.type == 'user' %}
     <div class="report-details">
       <div class="report-header">
-          <h2>Reported User Details</h2>
+          <h2 style="display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
+          border-top-left-radius: 10px;
+          border-top-right-radius: 10px;
+          color: white;
+          ">Reported User Details</h2>
       </div>
-      <div class="user-images">
+      <div style="padding: 10px;" class="user-images">
         <div class="image-container">
             <b>Cover Image:</b>
             <div class="image-frame">
@@ -98,7 +199,7 @@
             </div>
         </div>
       </div>
-      <div class="user-info">
+      <div class="user-info" style="padding: 10px;">
         <p><b>Username:</b> {{ report.reported_user.username }}</p>
         <p><b>Full Name:</b> {{ report.reported_user.first_name }} {{ report.reported_user.last_name }}</p>
       </div>
@@ -158,11 +259,12 @@
       <form action="{% url 'report:warn-user' report.id %}" method="post" id="warnForm" style="display: none">
         {% csrf_token %}
         <label for="comment">Comment:</label>
-        <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+        <textarea style="width: 90%; border-radius: 10px;" id="comment" name="comment" rows="4" cols="50"></textarea>
         <button type="submit">Submit Warn</button>
       </form>
     </div>
 
+</div>
 {% else %}
   <p>Not Found! 404.</p>
 {% endif %} 
