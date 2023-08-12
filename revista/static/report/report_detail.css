@@ -1,11 +1,11 @@
-/* 
+
 .report-container {
-    width: 600px;
-    border: 2px solid #ff0000;
-    background-color: #fee8e8;
-    border-radius: 5px;
-    padding: 20px;
-    margin: 20px auto;
+  width: 600px;
+  border: 2px solid #ff0000;
+  background-color: #fee8e8;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 20px auto;
 }
 
 .report-header h2 {
@@ -63,4 +63,4 @@ p{
 img{
     max-width: 100%; 
     height: auto;
-} */
+}
