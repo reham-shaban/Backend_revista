@@ -223,32 +223,6 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    def update(self, request, *args, **kwargs):
-            partial = kwargs.pop('partial', True)  # Set partial to True for PATCH requests
-            instance = self.get_object()
-            
-            # Deserialize the request data to check old and new passwords
-            serializer = ChangePasswordSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-
-            # Check if the old password matches the user's current password
-            old_password = serializer.validated_data.get('old_password')
-            if old_password and not instance.check_password(old_password):
-                return Response({'error': 'Incorrect old password'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Update the password if the new password is provided
-            new_password = serializer.validated_data.get('new_password')
-            if new_password:
-                instance.set_password(new_password)
-                instance.save()
-
-            # Update the user's other data if provided in the request
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-
-            return Response(serializer.data)
-
 # Deactivate account
 class DeactivateAccountView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]

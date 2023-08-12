@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'profile_image', 'birth_date', 'phone_number', 'gender','is_active')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'profile_image', 'birth_date', 'phone_number', 'gender','is_active', 'is_online')
 
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):
@@ -25,6 +25,6 @@ class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=False)
 
-class ChangePasswordSerializer(serializers.Serializer):
+class ChangeEmailSerializer(serializers.Serializer):
     old_email = serializers.CharField(required=True)
     new_email = serializers.CharField(required=False)
