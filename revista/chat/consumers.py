@@ -1,6 +1,9 @@
-import json, re, base64, os, binascii
+import json, re, base64, os, binascii, uuid
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.core.files.base import ContentFile
+from django.utils import timezone
+
 from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -22,25 +25,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         elif data['message_type'] == 'image':
             # Image message
+            image_data = data['image']
+            image_data = image_data.split(';base64,')[1]  # Remove data URI scheme
+            image_decoded = base64.b64decode(image_data)
+            
+            unique_identifier = uuid.uuid4().hex  # Generate a unique identifier
+            timestamp = timezone.now().strftime('%Y%m%d%H%M%S')  # Current timestamp
+            
+            image_name = f"image_{self.user.id}_{chat_object.id}_{timestamp}_{unique_identifier}.png"
+            
+            image_file = ContentFile(image_decoded, name=image_name)
+            
             message = await sync_to_async(Message.objects.create)(
-                chat=chat_object, author=self.user, type='image', image=data['image']
+                chat=chat_object, author=self.user, type='image', image=image_file
             )
         elif data['message_type'] == 'voice_record':
-            # Voice record message
-            voice_record_data = data['voice_record']
-            if not voice_record_data:
-                print('no voice record')
-                return
+            # Voice recording message
+            voice_data = data['voice_record']
+            voice_data = voice_data.split(';base64,')[1]  # Remove data URI scheme
+            voice_decoded = base64.b64decode(voice_data)
             
-            filename = os.path.join(settings.MEDIA_ROOT, 'voice_records', f'{self.chat_id}_{self.user.id}.wav')
+            unique_identifier = uuid.uuid4().hex  # Generate a unique identifier
+            timestamp = timezone.now().strftime('%Y%m%d%H%M%S')  # Current timestamp
+            
+            voice_name = f"image_{self.user.id}_{chat_object.id}_{timestamp}_{unique_identifier}.wav"
 
-            # Save the voice record data to the appropriate file
-            with open(filename, 'wb') as f:
-                f.write(binascii.a2b_base64(voice_record_data))
-
-            # Create the Message object with the voice record
+            voice_file = ContentFile(voice_decoded, name=voice_name)
+            
             message = await sync_to_async(Message.objects.create)(
-                chat=chat_object, author=self.user, type='voice_record', voice_record=filename
+                chat=chat_object, author=self.user, type='voice_record', voice_record=voice_file
             )
         else:
             print('Invalid message format')
