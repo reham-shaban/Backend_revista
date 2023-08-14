@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="stats-container">
+        <h2>Monthly Topic Follow Statistics</h2>
+        <div class="filter-container">
+            <form id="filter-form">
+                <label for="year-select">Select Year:</label>
+                <select id="year-select" name="year">
+                    <script>
+                        const currentYear = new Date().getFullYear();
+
+                        for (let year = currentYear; year >= 2000; year--) {
+                            document.write(`<option value="${year}">${year}</option>`);
+                        }
+                    </script>
+                </select>
+
+                <label for="topic-select">Select Topic:</label>
+                <select id="topic-select" name="topic">
+                    {% for topic in topic_names %}
+                        <option value="{{ forloop.counter }}">{{ topic }}</option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit">Apply Filter</button>
+            </form>
+        </div>
+        
+        <div id="topic-activity-chart-container">
+            <canvas id="topic-activity-chart" width="400" height="300"></canvas>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script>
+        var topicData = JSON.parse('{{ topic_data|safe }}');
+        var labels = topicData.map(entry => entry.month);
+        var data = topicData.map(entry => entry.followers);
+        
+        var config = {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    borderColor: '#3498db',
+                    fill: false,
+                    label: 'Follow Count'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        window.onload = function() {
+            var ctx = document.getElementById('topic-activity-chart').getContext('2d');
+            window.myLine = new Chart(ctx, config);
+
+            // Restore the selected values when the page loads
+            restoreSelectedValues();
+        };
+
+        document.getElementById('filter-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var year = document.getElementById('year-select').value;
+            var topic = document.getElementById('topic-select').value;
+
+            // Save the selected values to local storage
+            saveSelectedValues(year, topic);
+
+            // Build the URL with the selected year and topic
+            var url = window.location.pathname + `?year=${year}&topic=${topic}`;
+            
+            // Redirect to the new URL
+            window.location.href = url;
+        });
+
+        // Save the selected year and topic in local storage
+        function saveSelectedValues(year, topic) {
+            localStorage.setItem('selectedYear', year);
+            localStorage.setItem('selectedTopic', topic);
+        }
+
+        // Restore the selected year and topic from local storage
+        function restoreSelectedValues() {
+            var selectedYear = localStorage.getItem('selectedYear');
+            var selectedTopic = localStorage.getItem('selectedTopic');
+
+            if (selectedYear) {
+                document.getElementById('year-select').value = selectedYear;
+            }
+
+            if (selectedTopic) {
+                document.getElementById('topic-select').value = selectedTopic;
+            }
+        }
+    </script>
+{% endblock %}

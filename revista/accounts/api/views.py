@@ -223,6 +223,16 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+
+class UserPasswordUpdateView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
+
     def update(self, request, *args, **kwargs):
             partial = kwargs.pop('partial', True)  # Set partial to True for PATCH requests
             instance = self.get_object()
@@ -241,13 +251,13 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
             if new_password:
                 instance.set_password(new_password)
                 instance.save()
-
+                
             # Update the user's other data if provided in the request
             serializer = self.get_serializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
 
-            return Response(serializer.data)
+            return Response({'message':'Password changed successfully'},status=status.HTTP_200_OK)
 
 # Deactivate account
 class DeactivateAccountView(generics.UpdateAPIView):
@@ -265,6 +275,7 @@ class DeactivateAccountView(generics.UpdateAPIView):
 
 # Change Email views
 class ChangeEmailView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self,request):
         username=request.data.get('username')
         new_email=request.data.get('email')
@@ -301,6 +312,7 @@ class ChangeEmailView(APIView):
         return Response({'id': id, 'email': new_email}, status=status.HTTP_200_OK)
 
 class CheckEmailCodeView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         sent_code = request.data.get('code')
         if not sent_code:
@@ -314,6 +326,7 @@ class CheckEmailCodeView(APIView):
         return Response({"message" : "successful"}, status=status.HTTP_200_OK)
         
 class ResetEmailView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         id= request.data.get('id')
         new_email=request.data.get('email')
@@ -337,4 +350,4 @@ class ResetEmailView(APIView):
         user.save()
         
         return Response({"message": "Email changed successfully"}, status=status.HTTP_200_OK)
-     
+    

@@ -18,6 +18,7 @@ urlpatterns = [
     path('user-list/', views.UserView.as_view()),
     path('user-edit/', views.UserUpdateView.as_view()),
     path('deactivate_account/', views.DeactivateAccountView.as_view(), name='deactivate_account'),
+    path('change-password/',views.UserPasswordUpdateView.as_view()),
 
     path('change-email/', views.ChangeEmailView.as_view()),
     path('check-email-code/', views.CheckEmailCodeView.as_view()),
