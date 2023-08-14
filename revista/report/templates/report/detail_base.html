@@ -1,94 +1,128 @@
 {% extends 'base.html' %} 
 {% block content %} 
-<div class="report-design" >
-<style>
-  	body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.report-design{
-  flex-direction: column;
-  display: flex;
-  justify-self: center;
-  align-self: center;
-border-radius: 20px;
-background-color: whitesmoke;
-height:100%;
-}
-.header{
-  display: flex; justify-content: left;
-  background-color: #aa333d;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding: 10px;
-  color: white;
-}
-.subheader{
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-}
-.description{
-  padding: 10px;
 
-}
-.action{ 
-  padding: 10px;
-display: flex;
-flex-direction: column;
-}
-.action-div{
-  padding: 10px;
-  display: flex;
-  justify-content: space-evenly;
-}
-button{
-  border-radius: 10px;
-  background-color: #aa333d;
-}
-button:hover{
-  background-color: grey;
-}
-.report-container{
-background-color: white;
-display: flex;
-align-self: center;
-flex-direction: column;
-width: 500px;
-border-radius: 10px;
-}
-h1{
-  display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .report-design{
+    flex-direction: column;
+    display: flex;
+    justify-self: center;
+    align-self: center;
+    border-radius: 20px;
+    background-color: whitesmoke;
+    height:100%;
+  }
+  .header{
+    display: flex; justify-content: left;
+    background-color: #aa333d;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 10px;
+    color: white;
+  }
+  .subheader{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  .description{
+    padding: 10px;
+
+  }
+  .action{ 
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .action-div{
+    padding: 10px;
+    display: flex;
+    justify-content: space-evenly;
+  }
+  button{
+    border-radius: 10px;
+    background-color: #aa333d;
+  }
+  button:hover{
+    background-color: grey;
+  }
+  .report-container{
+    background-color: white;
+    display: flex;
+    align-self: center;
+    flex-direction: column;
+    width: 500px;
+    border-radius: 10px;
+  }
+  h1{
+    display: flex; background-color: #aa333d; padding: 20px; margin: 0%;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     color: white;
-}
-</style>
-  {% if report %}
-  <!-- Report INFO -->
-<div class="header">  
-  <p><b>Reporter : </b> {{ report.reporter.username }}</p>  
-</div>
-<div class="subheader">
-  <p><b>Report type : </b> {{report.type}}</p>
-<p><b>Category : </b> {{ report.category }}</p>
-</div>
-  <!-- Reporter Description -->
-<div class="description">
-  {% if report.description %}
-  <p>description:</p>
-  <p>{{ report.description }}</p>
-  {% endif %}
-
-</div>
-
-<p>This is report number {{ report_count }} for {{report.reported_user.username}}</p>  
-  <div class="report-container">
+  }
+  /* image */
+  .user-images {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
   
+  .image-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .image-frame {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .profile-image-frame {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }  
+
+</style>
+
+<div class="report-design" >
+
+{% if report %}
+
+<!-- Report INFO -->
+  <div class="header">  
+    <p><b>Reporter : </b> {{ report.reporter.username }}</p>  
+  </div>
+  <div class="subheader">
+    <p><b>Report type : </b> {{report.type}}</p>
+    <p><b>Category : </b> {{ report.category }}</p>
+  </div>
+
+  <!-- Reporter Description -->
+  <div class="description">
+    {% if report.description %}
+    <p>description:</p>
+    <p>{{ report.description }}</p>
+    {% endif %}
+  </div>
+  <p>This is report number {{ report_count }} for {{report.reported_user.username}}</p>
+  
+<div class="report-container">
   <!-- Post -->
   {% if report.type == 'post' %}  
     {% if post %}
@@ -124,7 +158,7 @@ h1{
       <p style="padding: 10px;">
         {% if post.image %}
         <b>Image:</b>
-        <img style="display: flex; justify-self: center; align-self: center;padding: 10px;"
+        <img class="image-frame" 
           src="{{ post.image.url }}"
           alt="Reported Post Image"
         />
@@ -237,13 +271,23 @@ h1{
         }
       </script>
 
-      <!-- Request admin to ban user -->
-      <div>
-        <form action="{% url 'report:redirect' report.id %}" method="get">
-          {% csrf_token %}
-          <button type="submit">Request admin to ban user</button><br />
-        </form>
-      </div>
+      <!-- Ban -->
+      {% if user.role == 'admin' %}
+        <div>
+          <form action="{% url 'report:ban' report.reported_user.id %}" method="get">
+            {% csrf_token %}
+            <button type="submit">Ban user</button><br />
+          </form>
+        </div>
+      {% else %}
+        <!-- Request admin to ban user -->
+        <div>
+          <form action="{% url 'report:redirect' report.id %}" method="get">
+            {% csrf_token %}
+            <button type="submit">Request admin to ban user</button><br />
+          </form>
+        </div>
+      {% endif %} 
 
       <!-- Decline -->
       <div>
@@ -265,6 +309,16 @@ h1{
     </div>
 
 </div>
+
+<!-- Mod comment for admin -->
+{% if user.role == 'admin' %}
+  <div>
+    <p><b>Moderator:</b> {{report.moderator.username}}</p>
+    <p><b>Moderator comment:</b> {{report.moderator_comment}}</p>
+  </div>
+{% endif %}
+  
+
 {% else %}
   <p>Not Found! 404.</p>
 {% endif %} 

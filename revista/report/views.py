@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views import generic, View
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Report, Warn
+from accounts.models import CustomUser
 from posts.models import Post
 from chat.models import Message
 from .forms import ReportUpdateForm, WarnForm
@@ -82,6 +84,9 @@ def mod_comment(request, report_id):
             
     return render(request, "report/mod_comment.html", {'form':form})
     
+def ban_page(request):
+    return render(request, "report/ban.html", {})
+
 # Actions
 # delete post
 class PostDeleteView(View):
@@ -92,7 +97,11 @@ class PostDeleteView(View):
         report.status = 'resolved'
         report.save()       
         post.delete()
-        return redirect('report:mod-commnet', report.pk)
+        user_role = self.request.user.role
+        if user_role == 'moderator':
+            return redirect('report:mod-commnet', report.pk)
+        elif user_role == 'admin':
+            return redirect('report:reports')
 
 # warn user
 class WarnView(View):
@@ -103,7 +112,11 @@ class WarnView(View):
         warn = Warn.objects.create(report=report, warned_user=warned_user, comment=comment)
         report.status = 'resolved'
         report.save()
-        return redirect('report:mod-commnet', report.pk)
+        user_role = self.request.user.role
+        if user_role == 'moderator':
+            return redirect('report:mod-commnet', report.pk)
+        elif user_role == 'admin':
+            return redirect('report:reports')
  
 # decline
 class DeclineView(View):
@@ -111,11 +124,25 @@ class DeclineView(View):
         report = get_object_or_404(Report, pk=pk)
         report.status = 'resolved'
         report.save()
-        return redirect('report:mod-commnet', report.pk)
-    
+        user_role = self.request.user.role
+        if user_role == 'moderator':
+            return redirect('report:mod-commnet', report.pk)
+        elif user_role == 'admin':
+            return redirect('report:reports')
+   
+# redirect 
 class RedirectView(View):
     def get(self, reques, pk): #report pk
         report = get_object_or_404(Report, pk=pk)
         report.status = 'redirected'
         report.save()
         return redirect('report:mod-commnet', report.pk)
+        
+# ban
+class BanUserView(View):
+    def get(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        user.is_banned = True
+        print('banned user: ', user, user.is_banned)
+        user.save()
+        return redirect('report:reports')

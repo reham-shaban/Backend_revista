@@ -8,7 +8,7 @@ from main.serializers import TopicSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model= CustomUser
-        fields=('id','username','profile_image','first_name', 'last_name')
+        fields=('id','username','profile_image','first_name', 'last_name', 'is_online')
         
 class AuthorSerializer(serializers.ModelSerializer):
     user= UserSerializer(read_only=True)

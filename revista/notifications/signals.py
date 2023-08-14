@@ -313,18 +313,40 @@ def create_mentions_notification_on_post(sender, instance, created, **kwargs):
         getPostBody = instance.content
         mentions = re.findall(r'@(\S+)', getPostBody)
         mentioning_user=instance.author.user.username
+        channel_layer = get_channel_layer()
         
         if mentions:
             for mention in mentions:
                 try:
                     mentioned_user = CustomUser.objects.get(username=mention)
-                    Notification.objects.create(
+                    group_name = f'user-notifications-{mentioned_user.id}'
+                    notification = Notification.objects.create(
                         user=mentioned_user,
-                        type="Mention",
+                        type="Post",
                         detail=f"{mentioning_user} mentioned you in a post",
                         forward_id = instance.id,
                         profile_image = instance.author.user.profile_image
                     )
+                    # Save the notification to the database
+                    notification.save()      
+                    
+                    # send a message to the consumer
+                    event = {
+                        'type': 'notification',
+                        'text': {
+                            'type': notification.type,
+                            'forward_id': notification.forward_id,
+                            'profile_image': notification.profile_image,
+                            'detail' : notification.detail,
+                            'created_at': notification.created_at
+                        },
+                    }
+                    print(event)
+                    
+                    try:
+                        async_to_sync(channel_layer.group_send)(group_name, event)
+                    except Exception as e:
+                        print('Exception in signals: ', e)
                 except CustomUser.DoesNotExist:
                     print(f"No User Found with mentioned username {mention} in comment {instance.content}")
 
@@ -335,17 +357,40 @@ def create_mentions_notification_on_comment(sender, instance, created, **kwargs)
         getCommentBody = instance.content
         mentions = re.findall(r'@(\S+)', getCommentBody)
         mentioning_user=instance.author.user.username
+        channel_layer = get_channel_layer()
+        
         if mentions:
             for mention in mentions:
                 try:
                     mentioned_user = CustomUser.objects.get(username=mention)
-                    Notification.objects.create(
+                    group_name = f'user-notifications-{mentioned_user.id}'
+                    notification = Notification.objects.create(
                         user=mentioned_user,
-                        type="Mention",
+                        type="Post",
                         detail=f"{mentioning_user} mentioned you in a comment",
                         forward_id = instance.post.id,
                         profile_image = instance.author.user.profile_image
                     )
+                    # Save the notification to the database
+                    notification.save()      
+                    
+                    # send a message to the consumer
+                    event = {
+                        'type': 'notification',
+                        'text': {
+                            'type': notification.type,
+                            'forward_id': notification.forward_id,
+                            'profile_image': notification.profile_image,
+                            'detail' : notification.detail,
+                            'created_at': notification.created_at
+                        },
+                    }
+                    print(event)
+                    
+                    try:
+                        async_to_sync(channel_layer.group_send)(group_name, event)
+                    except Exception as e:
+                        print('Exception in signals: ', e)
                 except CustomUser.DoesNotExist:
                     print(f"No User Found with mentioned username {mention} in comment {instance.content}")
 
@@ -356,16 +401,39 @@ def create_mentions_notification_on_reply(sender, instance, created, **kwargs):
         getCommentBody = instance.content
         mentions = re.findall(r'@(\S+)', getCommentBody)
         mentioning_user=instance.author.user.username
+        channel_layer = get_channel_layer()
+        
         if mentions:
             for mention in mentions:
                 try:
                     mentioned_user = CustomUser.objects.get(username=mention)
-                    Notification.objects.create(
+                    group_name = f'user-notifications-{mentioned_user.id}'
+                    notification = Notification.objects.create(
                         user=mentioned_user,
-                        type="Mention",
-                        detail=f"{mentioning_user} mentioned you in a comment",
+                        type="Reply",
+                        detail=f"{mentioning_user} mentioned you in a reply",
                         forward_id = instance.comment.id,
                         profile_image = instance.author.user.profile_image
                     )
+                    # Save the notification to the database
+                    notification.save()      
+                    
+                    # send a message to the consumer
+                    event = {
+                        'type': 'notification',
+                        'text': {
+                            'type': notification.type,
+                            'forward_id': notification.forward_id,
+                            'profile_image': notification.profile_image,
+                            'detail' : notification.detail,
+                            'created_at': notification.created_at
+                        },
+                    }
+                    print(event)
+                    
+                    try:
+                        async_to_sync(channel_layer.group_send)(group_name, event)
+                    except Exception as e:
+                        print('Exception in signals: ', e)
                 except CustomUser.DoesNotExist:
                     print(f"No User Found with mentioned username {mention} in comment {instance.content}")
