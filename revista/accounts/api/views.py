@@ -93,31 +93,33 @@ class LoginAPI(KnoxLoginView):
         username = request.POST.get('username')
         password = request.POST.get('password')
         if username and password:
-            user = CustomUser.objects.get(username=username)
-            print(user)
-            if user is not None:
-                if not user.is_active:
-                    print("not active")
-                    user.is_active = True
-                    user.save()
-                    print("user.is_active: ", user.is_active)
+            try:
+                userObj = CustomUser.objects.get(username=username)
+            except CustomUser.DoesNotExist:
+                return Response('username does not exist', status=status.HTTP_400_BAD_REQUEST)
             
-                login(request, user)
-                token = AuthToken.objects.create(user)
-                return Response(
-                    {
-                        'token': token[1],
-                        'id': user.id,
-                        'profile_id': user.profile.id,
-                    },
-                    status=status.HTTP_200_OK
-                )
-                
-            else:
-                return Response('Wrong username!', status=status.HTTP_404_NOT_FOUND)
-        
-        return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
+            # Check if user not active
+            if not userObj.is_active:
+                print("not active")
+                userObj.is_active = True
+                userObj.save()               
 
+            # login
+            serializer = AuthTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            login(request, user)
+            token = AuthToken.objects.create(user)
+            return Response(
+                {
+                    'token': token[1],
+                    'id': user.id,
+                    'profile_id': user.profile.id,
+                },
+                status=status.HTTP_200_OK
+            )
+        else:       
+            return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
 
 # Reset password views
 # 1.take the username and send an email
@@ -260,14 +262,10 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
             return Response({'message':'Password changed successfully'},status=status.HTTP_200_OK)
 
 # Deactivate account
-class DeactivateAccountView(generics.UpdateAPIView):
+class DeactivateAccountView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer  
 
-    def get_object(self):
-        return self.request.user
-
-    def update(self, request, *args, **kwargs):
+    def update(self, request):
         instance = self.get_object()
         instance.is_active = False
         instance.save()
