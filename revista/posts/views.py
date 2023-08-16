@@ -14,14 +14,11 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CustomUserFilter
 
-
-
+# pagination
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 1000
-
-
 
 # Post 
 # [POST]: create post, [GET]: posts list in home
@@ -30,8 +27,7 @@ class HomePostView(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
-
-    
+ 
     def get_queryset(self):
         profile =self.request.user.profile
         queryset = Post.objects.all()
@@ -73,9 +69,6 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Response({"detail": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
-    
-    
     
 # admin get all posts
 class PostView(generics.ListAPIView):
@@ -164,6 +157,7 @@ class SearchView(generics.ListAPIView):
         queryset = CustomUser.objects.exclude(profile__in=blocked_profiles)
         queryset = CustomUser.objects.exclude(profile__in=blocked_by)
         return queryset
+
 
 # Comment
 # [POST]: create comment, [GET]: comments list for post_id
@@ -270,7 +264,6 @@ class SavedPostView(generics.ListAPIView):
         queryset = queryset.exclude(post__author__id__in=blocked_by)
         return queryset
         
-
 #[POST] save a post
 class SavedPostCreateView(generics.CreateAPIView):
     queryset = SavedPost.objects.all()
@@ -308,6 +301,7 @@ class SavedPostDetailView(generics.RetrieveUpdateDestroyAPIView):
         return saved_post
 
 
+# History
 class HistoryView(generics.ListAPIView):
     queryset = SearchHistory.objects.all()
     serializer_class = SearchHistorySerializer
@@ -325,7 +319,6 @@ class HistoryView(generics.ListAPIView):
         queryset = queryset.exclude(searched_user__profile__in=blocked_profiles)
         
         return queryset
-
 
 class HistoryCreateView(generics.CreateAPIView):
     queryset=SearchHistory.objects.all()
@@ -348,7 +341,6 @@ class HistoryCreateView(generics.CreateAPIView):
 
     def get_error_response(self):
         return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-    
     
 class HistoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset=SearchHistory.objects.all()

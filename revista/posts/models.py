@@ -79,7 +79,6 @@ class SavedPost(models.Model):
         return f"{self.post.author.user}: {self.post.content}"
 
 
-
 class SearchHistory(models.Model):
     user=models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='user_search')
     searched_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='searched_user')
