@@ -99,33 +99,7 @@ class LoginAPI(KnoxLoginView):
                 userObj = CustomUser.objects.get(username=username)
             except CustomUser.DoesNotExist:
                 return Response('username does not exist', status=status.HTTP_400_BAD_REQUEST)
-            try:
-                userObj = CustomUser.objects.get(username=username)
-            except CustomUser.DoesNotExist:
-                return Response('username does not exist', status=status.HTTP_400_BAD_REQUEST)
             
-            # Check if user not active
-            if not userObj.is_active:
-                print("not active")
-                userObj.is_active = True
-                userObj.save()               
-
-            # login
-            serializer = AuthTokenSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            user = serializer.validated_data['user']
-            login(request, user)
-            token = AuthToken.objects.create(user)
-            return Response(
-                {
-                    'token': token[1],
-                    'id': user.id,
-                    'profile_id': user.profile.id,
-                },
-                status=status.HTTP_200_OK
-            )
-        else:       
-            return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
             # Check if user not active
             if not userObj.is_active:
                 print("not active")
@@ -259,7 +233,6 @@ class UpdateLastOnline(APIView):
     
     def get(self, request):
         user = self.request.user
-        print(user)
         user.last_online = timezone.now()
         user.save()
         return Response({'message': 'Online status updated.'}, status=status.HTTP_200_OK)
@@ -304,10 +277,13 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
 class DeactivateAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def update(self, request):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save()
+    def patch(self, request, format=None):
+        user = request.user
+        user.is_active = False
+        user.save()
+        # logout
+        AuthToken.objects.filter(user=user).delete()
+
         return Response({'message': 'Account deactivated successfully'})
 
 # Change Email views
