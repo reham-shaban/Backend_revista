@@ -16,6 +16,7 @@ django-phonenumber-field = {extras = ["phonenumbers"], version = "*"}
 requests = "*"
 faker = "*"
 django-admin-interface = "*"
+opencv-python = "*"
 
 [dev-packages]
 

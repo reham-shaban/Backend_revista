@@ -1,15 +1,14 @@
 from rest_framework import serializers
+from django.utils import timezone
+from datetime import timedelta
+
 from .models import Post, Like, Comment,Reply, SavedPost, SearchHistory 
 from accounts.models import CustomUser
 from main.models import Profile
+from accounts.api.serializers import UserSerializer
 from main.serializers import TopicSerializer
 
-# Post
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model= CustomUser
-        fields=('id','username','profile_image','first_name', 'last_name', 'is_online')
-        
+# Post        
 class AuthorSerializer(serializers.ModelSerializer):
     user= UserSerializer(read_only=True)
     class Meta:

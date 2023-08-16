@@ -1,5 +1,7 @@
 import random, requests, io
 from django.forms import ValidationError
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -93,30 +95,33 @@ class LoginAPI(KnoxLoginView):
         username = request.POST.get('username')
         password = request.POST.get('password')
         if username and password:
-            user = CustomUser.objects.get(username=username)
-            print(user)
-            if user is not None:
-                if not user.is_active:
-                    print("not active")
-                    user.is_active = True
-                    user.save()
-                    print("user.is_active: ", user.is_active)
+            try:
+                userObj = CustomUser.objects.get(username=username)
+            except CustomUser.DoesNotExist:
+                return Response('username does not exist', status=status.HTTP_400_BAD_REQUEST)
             
-                login(request, user)
-                token = AuthToken.objects.create(user)
-                return Response(
-                    {
-                        'token': token[1],
-                        'id': user.id,
-                        'profile_id': user.profile.id,
-                    },
-                    status=status.HTTP_200_OK
-                )
-                
-            else:
-                return Response('Wrong username!', status=status.HTTP_404_NOT_FOUND)
-        
-        return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
+            # Check if user not active
+            if not userObj.is_active:
+                print("not active")
+                userObj.is_active = True
+                userObj.save()               
+
+            # login
+            serializer = AuthTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            login(request, user)
+            token = AuthToken.objects.create(user)
+            return Response(
+                {
+                    'token': token[1],
+                    'id': user.id,
+                    'profile_id': user.profile.id,
+                },
+                status=status.HTTP_200_OK
+            )
+        else:       
+            return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
 
 
 # Reset password views
@@ -222,6 +227,17 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
     
     def get_object(self):
         return self.request.user
+
+# Update last online
+class UpdateLastOnline(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = self.request.user
+        print(user)
+        user.last_online = timezone.now()
+        user.save()
+        return Response({'message': 'Online status updated.'}, status=status.HTTP_200_OK)
 
 # Deactivate account
 class DeactivateAccountView(generics.UpdateAPIView):
