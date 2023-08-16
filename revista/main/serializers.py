@@ -121,3 +121,4 @@ class BlockedListSerializer(serializers.ModelSerializer):
     class Meta:
         model=Block
         fields=['id','blocked']
+

@@ -1,0 +1,28 @@
+/* Reset some default styles */
+body, h1, h2 {
+  margin: 0;
+  padding: 0;
+}
+
+/* Header styles */
+.header {
+  background-color: #a71d1d;
+  color: #d2cece;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Content styles */
+.content {
+  padding: 2rem;
+}
+
+/* Stats container */
+.stats-container {
+  background-color: #d2cece;
+  padding: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+

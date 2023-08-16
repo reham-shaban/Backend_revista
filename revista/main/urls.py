@@ -21,4 +21,6 @@ urlpatterns = [
     path('block-list/',views.BlockedUsers.as_view()),
     path('block-user/',views.BlockUsers.as_view()),
     path('unblock-user/<int:pk>/',views.UnblockUsers.as_view()),
+    
+
 ]

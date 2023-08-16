@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revista Stats</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'main/styles.css' %}"> {% endcomment %}
+</head>
+<body>
+    <div class="nav">
+        <h1>Revista Stats</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'Age' %}">Age</a></li>
+                <li><a href="{% url 'Gender' %}">Gender</a></li>
+                <li><a href="{% url 'Trending topics' %}">Trending topics</a></li>
+                <li><a href="{% url 'Topics activity' %}">Topics activity</a></li>
+                <li><a href="{% url 'Topics followings' %}">Topics followings</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

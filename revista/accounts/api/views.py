@@ -99,6 +99,10 @@ class LoginAPI(KnoxLoginView):
                 userObj = CustomUser.objects.get(username=username)
             except CustomUser.DoesNotExist:
                 return Response('username does not exist', status=status.HTTP_400_BAD_REQUEST)
+            try:
+                userObj = CustomUser.objects.get(username=username)
+            except CustomUser.DoesNotExist:
+                return Response('username does not exist', status=status.HTTP_400_BAD_REQUEST)
             
             # Check if user not active
             if not userObj.is_active:
@@ -122,7 +126,28 @@ class LoginAPI(KnoxLoginView):
             )
         else:       
             return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
+            # Check if user not active
+            if not userObj.is_active:
+                print("not active")
+                userObj.is_active = True
+                userObj.save()               
 
+            # login
+            serializer = AuthTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            login(request, user)
+            token = AuthToken.objects.create(user)
+            return Response(
+                {
+                    'token': token[1],
+                    'id': user.id,
+                    'profile_id': user.profile.id,
+                },
+                status=status.HTTP_200_OK
+            )
+        else:       
+            return Response('Invalid request, enter username and password!', status=status.HTTP_400_BAD_REQUEST)
 
 # Reset password views
 # 1.take the username and send an email
@@ -239,15 +264,47 @@ class UpdateLastOnline(APIView):
         user.save()
         return Response({'message': 'Online status updated.'}, status=status.HTTP_200_OK)
 
-# Deactivate account
-class DeactivateAccountView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer  
 
+class UserPasswordUpdateView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
     def get_object(self):
         return self.request.user
 
     def update(self, request, *args, **kwargs):
+            partial = kwargs.pop('partial', True)  # Set partial to True for PATCH requests
+            instance = self.get_object()
+            
+            # Deserialize the request data to check old and new passwords
+            serializer = ChangePasswordSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            # Check if the old password matches the user's current password
+            old_password = serializer.validated_data.get('old_password')
+            if old_password and not instance.check_password(old_password):
+                return Response({'error': 'Incorrect old password'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update the password if the new password is provided
+            new_password = serializer.validated_data.get('new_password')
+            if new_password:
+                instance.set_password(new_password)
+                instance.save()
+                
+            # Update the user's other data if provided in the request
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            return Response({'message':'Password changed successfully'},status=status.HTTP_200_OK)
+
+# Deactivate account
+class DeactivateAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request):
         instance = self.get_object()
         instance.is_active = False
         instance.save()
@@ -255,6 +312,7 @@ class DeactivateAccountView(generics.UpdateAPIView):
 
 # Change Email views
 class ChangeEmailView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self,request):
         username=request.data.get('username')
         new_email=request.data.get('email')
@@ -291,6 +349,7 @@ class ChangeEmailView(APIView):
         return Response({'id': id, 'email': new_email}, status=status.HTTP_200_OK)
 
 class CheckEmailCodeView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         sent_code = request.data.get('code')
         if not sent_code:
@@ -304,6 +363,7 @@ class CheckEmailCodeView(APIView):
         return Response({"message" : "successful"}, status=status.HTTP_200_OK)
         
 class ResetEmailView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         id= request.data.get('id')
         new_email=request.data.get('email')
@@ -327,4 +387,4 @@ class ResetEmailView(APIView):
         user.save()
         
         return Response({"message": "Email changed successfully"}, status=status.HTTP_200_OK)
-     
+    

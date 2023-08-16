@@ -1,0 +1,46 @@
+{% extends 'stats_base.html' %}
+
+{% block content %}
+    <div class="stats-container">
+        <h2>Most Active Topics</h2>
+        <div id="topic-activity-chart-container">
+            <canvas id="topic-activity-chart" width="400" height="300"></canvas>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script>
+        var topicData = {{ topic_data|safe }};
+        var labels = topicData.map(entry => entry.label);
+        var data = topicData.map(entry => entry.data);
+
+        var config = {
+            type: 'horizontalBar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6','#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6','#3498db'
+                    ],
+                    label: 'Post Count'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        window.onload = function() {
+            var ctx = document.getElementById('topic-activity-chart').getContext('2d');
+            window.myBar = new Chart(ctx, config);
+        };
+    </script>
+{% endblock %}
