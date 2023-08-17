@@ -22,6 +22,7 @@ class CustomUser(AbstractUser):
     gender = models.CharField(blank=True, null=True, max_length=1, choices=GENDER_CHOICES)
     role = models.CharField(max_length=25, choices=ROLE, default='regular-user')
     is_online = models.BooleanField(default=False)
+    last_online = models.DateTimeField(blank=True, null=True)
     is_banned = models.BooleanField(default=False)
         
     def __str__(self):

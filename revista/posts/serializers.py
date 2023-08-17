@@ -1,15 +1,12 @@
+import json
 from rest_framework import serializers
+
 from .models import Post, Like, Comment,Reply, SavedPost, SearchHistory 
-from accounts.models import CustomUser
-from main.models import Profile
+from main.models import Profile, Topic
+from accounts.api.serializers import UserSerializer
 from main.serializers import TopicSerializer
 
-# Post
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model= CustomUser
-        fields=('id','username','profile_image','first_name', 'last_name', 'is_online','is_active')
-        
+# Post        
 class AuthorSerializer(serializers.ModelSerializer):
     user= UserSerializer(read_only=True)
     class Meta:
@@ -20,14 +17,38 @@ class PostSerializer(serializers.ModelSerializer):
     author=AuthorSerializer(read_only=True)
     like_id= serializers.SerializerMethodField(method_name='get_like')
     saved_post_id= serializers.SerializerMethodField(method_name='get_save')
+    topics = serializers.PrimaryKeyRelatedField(
+       queryset=Topic.objects.all(), 
+       required=False, many=True
+    )
     topics_details = TopicSerializer(source='topics' ,many=True, read_only=True)
+    topics_string = serializers.CharField(write_only=True)
     likes_count = serializers.SerializerMethodField(method_name='get_likes_count')
     comments_count = serializers.SerializerMethodField(method_name='get_comments_count')
     
     class Meta:
         model = Post
-        fields = ('id', 'author', 'content', 'link', 'topics', 'topics_details', 'image', 'like_id', 'saved_post_id', 'likes_count', 'comments_count', 'created_at', 'updated_at')
+        fields = ('id', 'author', 'content', 'link', 'topics', 'topics_details', 'topics_string', 'image', 'like_id', 'saved_post_id', 'likes_count', 'comments_count', 'created_at', 'updated_at')
     
+    def create(self, validated_data):
+        topics_string = validated_data.pop('topics_string')
+        topics_list = json.loads(topics_string)
+        print(topics_list)
+        # validated_data['topics'] = topics_list
+       
+        post = Post.objects.create(**validated_data)
+        post.topics.set(topics_list)
+        return post
+    
+    def update(self, instance, validated_data):
+        topics_string = validated_data.pop('topics_string', None)
+        
+        if topics_string is not None:
+            topics_list = json.loads(topics_string)
+            instance.topics.set(topics_list)
+
+        return super().update(instance, validated_data)
+
     def get_like(self, obj):
         request = self.context.get('request', None)   
         print(request)
@@ -91,7 +112,7 @@ class SavedPostSerializer(serializers.ModelSerializer):
         except SavedPost.DoesNotExist:
             return 0
     
-    
+# Search History  
 class SearchHistorySerializer(serializers.ModelSerializer):
     searched_user=UserSerializer(read_only=True)
     class Meta:

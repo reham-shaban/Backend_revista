@@ -1,5 +1,7 @@
 import random, requests, io
 from django.forms import ValidationError
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -227,6 +229,16 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+# Update last online
+class UpdateLastOnline(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = self.request.user
+        user.last_online = timezone.now()
+        user.save()
+        return Response({'message': 'Online status updated.'}, status=status.HTTP_200_OK)
+
 
 class UserPasswordUpdateView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
@@ -267,12 +279,15 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
 class DeactivateAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def patch(self, request, format=None):
         user = request.user
         user.is_active = False
         user.save()
-        logout(request)  # Log out the user
-        return Response({'message': 'Account deactivated successfully'}, status=status.HTTP_200_OK)
+        # logout
+        AuthToken.objects.filter(user=user).delete()
+
+        return Response({'message': 'Account deactivated successfully'})
+
 # Change Email views
 class ChangeEmailView(APIView):
     permission_classes = [IsAuthenticated]
