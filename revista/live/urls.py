@@ -4,5 +4,6 @@ from . import views
 
 # 'live/'
 urlpatterns = [
-   path('', views.CreateLive.as_view()),
+   path('', views.LiveCreateView.as_view()),
+   path('close/<int:pk>', views.LiveDeleteView.as_view()),
 ]

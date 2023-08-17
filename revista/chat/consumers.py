@@ -81,9 +81,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Fetch messages from database with pagination
         chat_object = await database_sync_to_async(Chat.objects.get)(pk=self.chat_id)
-        messages = await database_sync_to_async(Message.objects.filter)(
-            chat=chat_object
-        )
+        messages = await database_sync_to_async(Message.objects.filter(
+        chat=chat_object
+    ).order_by('-created_at'))()
         messages = messages[start_index:end_index]
 
         content = {
