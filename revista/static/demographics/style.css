@@ -1,0 +1,9 @@
+ul {
+	list-style: none;
+}
+
+.nav{
+	margin: 10px;
+	width: 900px;
+	font-family: sans-serif;
+}

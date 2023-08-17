@@ -33,7 +33,8 @@ class HomePostView(generics.ListCreateAPIView):
 
     
     def get_queryset(self):
-        profile =self.request.user.profile
+        user=self.request.user
+        profile =user.profile
         queryset = Post.objects.all()
         topics_followed = TopicFollow.objects.filter(profile=profile)
         followings = Follow.objects.filter(follower=profile).values('followed__id')
@@ -43,6 +44,7 @@ class HomePostView(generics.ListCreateAPIView):
         queryset = queryset.filter(Q(topics__in=topics_followed.values('topic')) | Q(author__id__in=followings))
         queryset = queryset.exclude(author__id__in=blocked_users)
         queryset = queryset.exclude(author__id__in=blocked_by)
+        queryset = queryset.exclude(author__user__is_active=False)
         # Annotate the queryset with the total points for each post
         queryset = queryset.annotate(
             total_points=Sum('pointed_post__value')
@@ -69,7 +71,8 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     
         author_blocked=Block.objects.filter(blocker=profile,blocked=author).exists()
         profile_blocked=Block.objects.filter(blocker=author,blocked=profile).exists()
-        if author_blocked or profile_blocked:
+        deactivated_profile=CustomUser.filter(is_active=False).exists()
+        if author_blocked or profile_blocked or deactivated_profile:
             return Response({"detail": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -125,6 +128,8 @@ class DiscoverView(generics.ListAPIView):
     # Exclude blocked users' posts
         queryset = queryset.exclude(author__id__in=blocked_users)
         queryset = queryset.exclude(author__id__in=blocked_by)
+        queryset = queryset.exclude(author__user__is_active=False)
+
         if topic_id != 0:
             queryset=queryset.filter(topics__id=topic_id)
         queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
@@ -142,6 +147,7 @@ class GeneralView(generics.ListAPIView):
         blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
         queryset = queryset.exclude(author__id__in=blocked_users)
         queryset = queryset.exclude(author__id__in=blocked_by)
+        queryset = queryset.exclude(author__user__is_active=False)
         queryset = queryset.annotate(total_points=Sum('pointed_post__value'))
         queryset = queryset.order_by('-total_points','-created_at')
         return queryset
@@ -155,7 +161,8 @@ class SearchView(generics.ListAPIView):
     filterset_class = CustomUserFilter
     def get_queryset(self):
         # Get the current user's profile
-        profile = self.request.user.profile
+        user=self.request.user
+        profile =user.profile
 
         # Get a list of profiles that the current user has blocked
         blocked_profiles = Block.objects.filter(blocker=profile).values_list('blocked', flat=True)
@@ -163,6 +170,7 @@ class SearchView(generics.ListAPIView):
         # Exclude profiles that are blocked from the queryset
         queryset = CustomUser.objects.exclude(profile__in=blocked_profiles)
         queryset = CustomUser.objects.exclude(profile__in=blocked_by)
+        queryset = queryset.exclude(is_active=False)
         return queryset
 
 # Comment
@@ -188,6 +196,7 @@ class CommentView(generics.ListCreateAPIView):
         blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
         queryset = queryset.exclude(author__id__in=blocked_users)
         queryset = queryset.exclude(author__id__in=blocked_by)
+        queryset = queryset.exclude(author__user__is_active=False)
         return queryset
 
 # single comment [GET ,PUT, PATCH, DELETE]
@@ -222,6 +231,7 @@ class ReplyView(generics.ListCreateAPIView):
         blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
         queryset = Reply.objects.filter(comment__id=comment_id).exclude(author__id__in=blocked_users)
         queryset = Reply.objects.filter(comment__id=comment_id).exclude(author__id__in=blocked_by)
+        queryset = Reply.objects.filter(comment__id=comment_id).exclude(author__user__is_active=False)
         return queryset
 
 # single replies [GET ,PUT, PATCH, DELETE]
@@ -266,8 +276,9 @@ class SavedPostView(generics.ListAPIView):
         queryset = SavedPost.objects.filter(profile=profile)
         blocked_users = Block.objects.filter(blocker=profile).values('blocked__id')
         blocked_by= Block.objects.filter(blocked=profile).values('blocker__id')
-        queryset= queryset.exclude(post__author_id__in=blocked_users)
+        queryset= queryset.exclude(post__author__id__in=blocked_users)
         queryset = queryset.exclude(post__author__id__in=blocked_by)
+        queryset = queryset.exclude(post__author__user__is_active=False)
         return queryset
         
 

@@ -5,7 +5,6 @@ from django.db.models.functions import ExtractYear, ExtractMonth
 from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-#from calendar import month_name
 import calendar
 from .serializers import AgeSerializer, GenderSerializer, TrendingTopicsSerializer, TopicsActivitySerializer, TopicsFollowingsStatsSerializer
 from rest_framework import generics 
@@ -16,9 +15,9 @@ from main.models import Topic, TopicFollow
 # Create your views here.
 
 #App Statistics and Demographics
-# class AgeView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
-class AgeView(generics.ListAPIView):#test
-    #permission_required = 'demographics.view_age_stats'
+class AgeView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
+#class AgeView(generics.ListAPIView):#test
+    permission_required = 'demographics.view_age_stats'
     queryset = CustomUser.objects.all()
 
     def get_queryset(self):
@@ -45,8 +44,8 @@ class AgeView(generics.ListAPIView):#test
 
 
 #Gender
-class GenderView(generics.ListAPIView):#test
-    #permission_required = 'demographics.view_gender_stats'
+class GenderView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):#test
+    permission_required = 'demographics.view_gender_stats'
     queryset = CustomUser.objects.all()
     serializer_class = GenderSerializer
     def get(self, request, *args, **kwargs):
@@ -68,9 +67,11 @@ class GenderView(generics.ListAPIView):#test
 
         return render(request, 'demographics/gender_stats.html', {'gender_data': gender_data})
 
-# class TrendingTopicsView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
-class TrendingTopicsView(generics.ListAPIView):#test
-    #permission_required = 'demographics.view_trending_topics_stats'
+
+
+
+class TrendingTopicsView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
+    permission_required = 'demographics.view_trending_topics_stats'
     queryset = Topic.objects.annotate(follower_count=Count('topicfollow')).order_by('-follower_count')
     serializer_class = TrendingTopicsSerializer
     def get(self, request, *args, **kwargs):
@@ -81,9 +82,8 @@ class TrendingTopicsView(generics.ListAPIView):#test
         return render(request, 'demographics/trending_topics_stats.html', {'topic_data': json.dumps(topic_data)})
     
 
-# class TopicsActivityView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
-class TopicsActivityView(generics.ListAPIView):#test
-    #permission_required = 'demographics.view_topics_activity_stats'
+class TopicsActivityView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
+    permission_required = 'demographics.view_topics_activity_stats'
     queryset = Topic.objects.annotate(post_count=Count('post')).order_by('-post_count')
     serializer_class = TopicsActivitySerializer
     def get(self, request, *args, **kwargs):
@@ -93,8 +93,12 @@ class TopicsActivityView(generics.ListAPIView):#test
 
         return render(request, 'demographics/topics_activity_stats.html', {'topic_data': json.dumps(topic_data)})
 
-class TopicsFollowingsStatsView(generics.ListAPIView):#test
+
+
+
+class TopicsFollowingsStatsView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
     serializer_class = TopicsFollowingsStatsSerializer
+    permission_required = 'demographics.view_topics_followings_stats'
 
     def get(self, request, *args, **kwargs):
         # Get URL parameters

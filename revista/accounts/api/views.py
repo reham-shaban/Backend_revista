@@ -18,6 +18,8 @@ from knox.models import AuthToken
 
 from ..models import CustomUser, PasswordResetCode, EmailChangeCode
 from .serializers import UserSerializer, RegisterSerializer, ChangePasswordSerializer
+from django.contrib.auth import logout
+from rest_framework.authtoken.models import Token
 
 # Google
 def download_image(profile_url, username):
@@ -265,12 +267,12 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
 class DeactivateAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def update(self, request):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save()
-        return Response({'message': 'Account deactivated successfully'})
-
+    def post(self, request):
+        user = request.user
+        user.is_active = False
+        user.save()
+        logout(request)  # Log out the user
+        return Response({'message': 'Account deactivated successfully'}, status=status.HTTP_200_OK)
 # Change Email views
 class ChangeEmailView(APIView):
     permission_classes = [IsAuthenticated]

@@ -1,12 +1,20 @@
 {% extends 'stats_base.html' %}
 
 {% block content %}
+<style>
+button{
+    margin:5px;padding:5px; font-size: 16px; border: 1px solid #ccc; border-radius:10px;
+}
+button:hover{
+    background-color:#f39c12;
+}
+</style>
     <div class="stats-container">
         <h2>Monthly Topic Follow Statistics</h2>
-        <div class="filter-container">
+        <div class="filter-container"  >
             <form id="filter-form">
                 <label for="year-select">Select Year:</label>
-                <select id="year-select" name="year">
+                <select id="year-select" name="year" style='padding: 5px; font-size: 16px; border: 1px solid #ccc; border-radius:10px;'>
                     <script>
                         const currentYear = new Date().getFullYear();
 
@@ -17,7 +25,7 @@
                 </select>
 
                 <label for="topic-select">Select Topic:</label>
-                <select id="topic-select" name="topic">
+                <select id="topic-select" name="topic" style='padding: 5px; font-size: 16px; border: 1px solid #ccc; border-radius:10px;'>
                     {% for topic in topic_names %}
                         <option value="{{ forloop.counter }}">{{ topic }}</option>
                     {% endfor %}
@@ -28,7 +36,7 @@
         </div>
         
         <div id="topic-activity-chart-container">
-            <canvas id="topic-activity-chart" width="400" height="300"></canvas>
+            <canvas id="topic-activity-chart" width="600" height="450"></canvas>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
