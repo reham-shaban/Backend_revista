@@ -53,7 +53,10 @@ class ChatContact(generics.ListAPIView):
         (Q(user1__profile=profile) & Q(user2__profile__in=blocked_users)) | 
         (Q(user1__profile=profile) & Q(user2__profile__in=blocked_by)) |
         (Q(user2__profile=profile) & Q(user1__profile__in=blocked_users)) | 
-        (Q(user2__profile=profile) & Q(user1__profile__in=blocked_by)))
+        (Q(user2__profile=profile) & Q(user1__profile__in=blocked_by)) |
+        (Q(user1__is_active=False))|
+        (Q(user2__is_active=False))
+        )
         
         queryset = queryset.filter(Q(user1=user) | Q(user2=user))
         

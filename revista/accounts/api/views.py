@@ -20,6 +20,8 @@ from knox.models import AuthToken
 
 from ..models import CustomUser, PasswordResetCode, EmailChangeCode
 from .serializers import UserSerializer, RegisterSerializer, ChangePasswordSerializer
+from django.contrib.auth import logout
+from rest_framework.authtoken.models import Token
 
 # Google
 def download_image(profile_url, username):
