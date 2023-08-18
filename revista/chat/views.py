@@ -100,8 +100,8 @@ class ForwardMessage(APIView):
     
     def post(self, request):
         user = self.request.user
-        message_id = request.POST.get('message_id')
-        new_chat_id = request.POST.get('new_chat_id')
+        message_id = request.data.get('message_id')
+        new_chat_id = request.data.get('new_chat_id')
         
         if not message_id:
             return Response({'error': 'Missing message_id field.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -131,14 +131,19 @@ class SharePost(APIView):
     
     def post(self, request):
         user = self.request.user
-        chat_id = request.POST.get('chat_id')
-        post_id = request.POST.get('post_id')
-        post_url = request.POST.get('post_url')
+        chat_id = request.data.get('chat_id')
+        post_id = request.data.get('post_id')
+        post_url = request.data.get('post_url')
+        
+        print(chat_id)
+        
         
         if not chat_id:
             return Response({'error': 'Missing chat_id field.'}, status=status.HTTP_400_BAD_REQUEST)
         if not post_id:
             return Response({'error': 'Missing post_id field.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not post_url:
+            return Response({'error': 'Missing post_url field.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Retrieve chat and post
         chat = get_object_or_404(Chat, id=chat_id)

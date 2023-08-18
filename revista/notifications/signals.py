@@ -116,6 +116,7 @@ def warn_notification(sender, instance, created, **kwargs):
         # warned user data
         warned_user = instance.warned_user
         id = warned_user.id        
+        profile_image = warned_user.profile_image
         group_name = f'user-notifications-{id}'  # Create a separate group for each user   
         
         # warn data
@@ -129,6 +130,7 @@ def warn_notification(sender, instance, created, **kwargs):
             type = 'Warn',
             forward_id = warn_id,
             detail = detail,
+            profile_image = profile_image
         )       
         # Save the notification to the database
         notification.save()

@@ -7,9 +7,6 @@ from rest_framework.exceptions import ValidationError
 from .models import Profile, Topic, TopicFollow, Follow,Block
 from .serializers import ProfileSerializer, VistorProfileSerializer, TopicSerializer, TopicFollowSerializer, FollowSerializer, FollowingListSerializer, FollowersListSerializer, BlockSerializer, BlockedListSerializer
 
-
-
-
 # Profile
 # List all Profiles
 class ProfileView(generics.ListCreateAPIView):
@@ -140,11 +137,21 @@ class BlockUsers(generics.CreateAPIView):
     serializer_class=BlockSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
         
         blocker = self.request.user.profile
         blocked = serializer.validated_data['blocked']
+        
+        follow1 = Follow.objects.filter(follower=blocked, followed=blocker).first()
+        follow2 = Follow.objects.filter(follower=blocker, followed=blocked).first()
+        
+        if follow1:
+            follow1.delete()
+            
+        if follow2:
+            follow2.delete()
         
         if Block.objects.filter(blocker=blocker, blocked=blocked).exists():
             raise ValidationError("User already blocked.")

@@ -72,7 +72,8 @@ class GoogleView(APIView):
         return Response({
             'message': message,
             'token': token,
-            'id': id
+            'id': id,
+            'profile_id': user.profile.id,
         })       
 
 # Register API
@@ -288,7 +289,7 @@ class DeactivateAccountView(APIView):
         # logout
         AuthToken.objects.filter(user=user).delete()
 
-        return Response({'message': 'Account deactivated successfully'})
+        return Response({'message': 'Account deactivated successfully'}, status=status.HTTP_200_OK)
 
 # Change Email views
 class ChangeEmailView(APIView):
