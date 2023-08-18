@@ -14,7 +14,33 @@
   <link rel="stylesheet" href="{% static "admin/css/nav_sidebar.css" %}">
   <script src="{% static 'admin/js/nav_sidebar.js' %}" defer></script>
 {% endif %}
-{% block extrastyle %}{% endblock %}
+{% block extrastyle %}
+<style>
+  .module h2, .module caption, .inline-group h2, #header{ 
+    margin: 0; 
+    padding: 5px 10px 5px 10px; 
+    font-size: 11px; 
+    text-align: left; 
+    font-weight: bold; 
+    background: #aa333d;
+    color: smokewhite; 
+  }
+
+  a:link, a:visited ,a:focus, a:hover ,a:focus, a {
+    color:#aa333d;
+}
+div.breadcrumbs{
+  background:#aa333d;
+}
+#change-history .paginator {
+color:#aa333d;
+}
+
+
+
+
+</style>
+{% endblock %}
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
 {% block extrahead %}{% endblock %}
 {% block responsive %}
