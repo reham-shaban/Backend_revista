@@ -12,7 +12,7 @@ from knox.auth import TokenAuthentication
 from accounts.models import CustomUser
 from main.models import Profile, Block
 from posts.models import Post
-from .models import Chat, Message,Call
+from .models import Chat, Message #,Call
 from .serializers import ChatContactSerializer, ChatSerializer, MessageSerializer
 
 from channels.layers import get_channel_layer
@@ -100,8 +100,8 @@ class ForwardMessage(APIView):
     
     def post(self, request):
         user = self.request.user
-        message_id = request.POST.get('message_id')
-        new_chat_id = request.POST.get('new_chat_id')
+        message_id = request.data.get('message_id')
+        new_chat_id = request.data.get('new_chat_id')
         
         if not message_id:
             return Response({'error': 'Missing message_id field.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -131,14 +131,19 @@ class SharePost(APIView):
     
     def post(self, request):
         user = self.request.user
-        chat_id = request.POST.get('chat_id')
-        post_id = request.POST.get('post_id')
-        post_url = request.POST.get('post_url')
+        chat_id = request.data.get('chat_id')
+        post_id = request.data.get('post_id')
+        post_url = request.data.get('post_url')
+        
+        print(chat_id)
+        
         
         if not chat_id:
             return Response({'error': 'Missing chat_id field.'}, status=status.HTTP_400_BAD_REQUEST)
         if not post_id:
             return Response({'error': 'Missing post_id field.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not post_url:
+            return Response({'error': 'Missing post_url field.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Retrieve chat and post
         chat = get_object_or_404(Chat, id=chat_id)
@@ -158,38 +163,35 @@ class SharePost(APIView):
         
         
 #voice/video calls
-class MakeCallView(APIView):
-    def post(self, request):
-        caller = request.user
-        callee_id = request.data.get('callee_id')
-        call_type = request.data.get('call_type')  # 'voice' or 'video'
-        # Check if the callee is already on a call
-        if Call.objects.filter(callee_id=callee_id, on_call=True).exists():
-            return Response({'message': 'Line busy.'}, status=status.HTTP_400_BAD_REQUEST)
-        # Save the call invitation in the database
-        call = Call.objects.create(caller=caller, callee_id=callee_id, call_type=call_type)
-        return Response({'message': 'Invitation sent successfully'})
+# class MakeCallView(APIView):
+#     def post(self, request):
+#         caller = request.user
+#         callee_id = request.data.get('callee_id')
+#         call_type = request.data.get('call_type')  # 'voice' or 'video'
+#         # Check if the callee is already on a call
+#         if Call.objects.filter(callee_id=callee_id, on_call=True).exists():
+#             return Response({'message': 'Line busy.'}, status=status.HTTP_400_BAD_REQUEST)
+#         # Save the call invitation in the database
+#         call = Call.objects.create(caller=caller, callee_id=callee_id, call_type=call_type)
+#         return Response({'message': 'Invitation sent successfully'})
 
-
-
-class AcceptCallView(APIView):
-    def get(self, request, call_id):
-        # Retrieve the call invitation
-        call = get_object_or_404(Call, id=call_id)
-        if call.ended_at is not None:
-            raise PermissionDenied("Cannot accept an ended call.")
+# class AcceptCallView(APIView):
+#     def get(self, request, call_id):
+#         # Retrieve the call invitation
+#         call = get_object_or_404(Call, id=call_id)
+#         if call.ended_at is not None:
+#             raise PermissionDenied("Cannot accept an ended call.")
         
-        call.accept_call()
-        return Response({'message': 'Call accepted'}, status=status.HTTP_201_CREATED)
+#         call.accept_call()
+#         return Response({'message': 'Call accepted'}, status=status.HTTP_201_CREATED)
     
-
-class EndCallView(APIView):
-    def get(self, request, call_id):
-        user = request.user
-        # Retrieve the call and ensure the user is a participant
-        call = Call.objects.get(id=call_id)
-        if user != call.caller and user != call.callee:
-            raise PermissionDenied("You don't have permission to end this call.")
-        # End the call by calling the model's end_call method
-        call.end_call()
-        return Response({'message': 'Call ended'} ,status=status.HTTP_204_NO_CONTENT)
+# class EndCallView(APIView):
+    # def get(self, request, call_id):
+    #     user = request.user
+    #     # Retrieve the call and ensure the user is a participant
+    #     call = Call.objects.get(id=call_id)
+    #     if user != call.caller and user != call.callee:
+    #         raise PermissionDenied("You don't have permission to end this call.")
+    #     # End the call by calling the model's end_call method
+    #     call.end_call()
+    #     return Response({'message': 'Call ended'} ,status=status.HTTP_204_NO_CONTENT)

@@ -44,27 +44,27 @@ class Message(models.Model):
 
 
 
-class Call(models.Model):
-    CALL_TYPE_CHOICES = (
-        ('voice', 'Voice'),
-        ('video', 'Video'),
-    )
+# class Call(models.Model):
+    # CALL_TYPE_CHOICES = (
+    #     ('voice', 'Voice'),
+    #     ('video', 'Video'),
+    # )
     
-    call_type = models.CharField(max_length=10, choices=CALL_TYPE_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
-    ended_at = models.DateTimeField(null=True, blank=True)
-    caller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='outgoing_calls')
-    callee = models.ForeignKey(CustomUser,null=False, on_delete=models.CASCADE, related_name='incoming_calls')
-    on_call = models.BooleanField(default=False)
+    # call_type = models.CharField(max_length=10, choices=CALL_TYPE_CHOICES)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # ended_at = models.DateTimeField(null=True, blank=True)
+    # caller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='outgoing_calls')
+    # callee = models.ForeignKey(CustomUser,null=False, on_delete=models.CASCADE, related_name='incoming_calls')
+    # on_call = models.BooleanField(default=False)
 
-    def accept_call(self):
-        self.on_call = True
-        self.save()
+    # def accept_call(self):
+    #     self.on_call = True
+    #     self.save()
 
-    def end_call(self):
-        self.on_call = False
-        self.ended_at = timezone.now()
-        self.save()
+    # def end_call(self):
+    #     self.on_call = False
+    #     self.ended_at = timezone.now()
+    #     self.save()
     
-    def __str__(self):
-        return f'{self.caller} {self.call_type} called {self.callee}'
+    # def __str__(self):
+    #     return f'{self.caller} {self.call_type} called {self.callee}'

@@ -72,7 +72,8 @@ class GoogleView(APIView):
         return Response({
             'message': message,
             'token': token,
-            'id': id
+            'id': id,
+            'profile_id': user.profile.id,
         })       
 
 # Register API
@@ -85,7 +86,9 @@ class RegisterAPI(generics.GenericAPIView):
         user = serializer.save()
         return Response({
         "user": UserSerializer(user, context=self.get_serializer_context()).data,
-        "token": AuthToken.objects.create(user)[1]
+        "token": AuthToken.objects.create(user)[1],
+        'id': user.id,
+        'profile_id': user.profile.id,
         })
         
 # Login API
@@ -286,7 +289,7 @@ class DeactivateAccountView(APIView):
         # logout
         AuthToken.objects.filter(user=user).delete()
 
-        return Response({'message': 'Account deactivated successfully'},status=status.HTTP_200_OK)
+        return Response({'message': 'Account deactivated successfully'}, status=status.HTTP_200_OK)
 
 # Change Email views
 class ChangeEmailView(APIView):

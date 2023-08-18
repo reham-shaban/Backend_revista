@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views import generic, View
 from django.contrib.auth import logout
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Report, Warn
@@ -27,7 +28,7 @@ class ReportList(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
             if not status:
                 status = 'redirected'
         else:
-            return redirect(reverse('/'))
+            raise PermissionDenied
         
         # get queryset and filter status & type
         queryset = super().get_queryset()
