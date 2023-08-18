@@ -17,7 +17,7 @@ from main.models import Topic, TopicFollow
 #App Statistics and Demographics
 class AgeView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
 #class AgeView(generics.ListAPIView):#test
-    permission_required = 'demographics.view_age_stats'
+    permission_required = 'report.view_report'
     queryset = CustomUser.objects.all()
 
     def get_queryset(self):
@@ -45,7 +45,7 @@ class AgeView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
 
 #Gender
 class GenderView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):#test
-    permission_required = 'demographics.view_gender_stats'
+    permission_required = 'report.view_report'
     queryset = CustomUser.objects.all()
     serializer_class = GenderSerializer
     def get(self, request, *args, **kwargs):
@@ -71,7 +71,7 @@ class GenderView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIVie
 
 
 class TrendingTopicsView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
-    permission_required = 'demographics.view_trending_topics_stats'
+    permission_required = 'report.view_report'
     queryset = Topic.objects.annotate(follower_count=Count('topicfollow')).order_by('-follower_count')
     serializer_class = TrendingTopicsSerializer
     def get(self, request, *args, **kwargs):
@@ -83,7 +83,7 @@ class TrendingTopicsView(LoginRequiredMixin, PermissionRequiredMixin,generics.Li
     
 
 class TopicsActivityView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
-    permission_required = 'demographics.view_topics_activity_stats'
+    permission_required = 'report.view_report'
     queryset = Topic.objects.annotate(post_count=Count('post')).order_by('-post_count')
     serializer_class = TopicsActivitySerializer
     def get(self, request, *args, **kwargs):
@@ -98,7 +98,7 @@ class TopicsActivityView(LoginRequiredMixin, PermissionRequiredMixin,generics.Li
 
 class TopicsFollowingsStatsView(LoginRequiredMixin, PermissionRequiredMixin,generics.ListAPIView):
     serializer_class = TopicsFollowingsStatsSerializer
-    permission_required = 'demographics.view_topics_followings_stats'
+    permission_required = 'report.view_report'
 
     def get(self, request, *args, **kwargs):
         # Get URL parameters

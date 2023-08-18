@@ -13,7 +13,7 @@
         var genderData = {{ gender_data|safe }};
         var labels = genderData.map(entry => entry.label);
         var data = genderData.map(entry => entry.data);
-
+        console.log(labels)
         var config = {
             type: 'doughnut',
             data: {
