@@ -12,7 +12,7 @@
         var topicData = {{ topic_data|safe }};
         var labels = topicData.map(entry => entry.label);
         var data = topicData.map(entry => entry.data);
-
+        console.log(labels)
         var config = {
             type: 'horizontalBar',
             data: {
