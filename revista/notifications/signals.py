@@ -7,7 +7,7 @@ import re
 from main.models import Follow
 from accounts.models import CustomUser
 from posts.models import Like,Post , Comment, Reply
-from chat.models import Message, Call
+from chat.models import Message#, Call
 from report.models import Warn
 from .models import Notification
 
@@ -439,35 +439,35 @@ def create_mentions_notification_on_reply(sender, instance, created, **kwargs):
                     print(f"No User Found with mentioned username {mention} in comment {instance.content}")
 
 
-@receiver(post_save, sender=Call)
-def create_notification_on_call(sender, instance, created, **kwargs):
-    if created:
-        caller=instance.caller
-        callee=instance.callee
-        caller_image=caller.profile_image
-        call_id=instance.id
-        channel_layer = get_channel_layer()
+# @receiver(post_save, sender=Call)
+# def create_notification_on_call(sender, instance, created, **kwargs):
+#     if created:
+#         caller=instance.caller
+#         callee=instance.callee
+#         caller_image=caller.profile_image
+#         call_id=instance.id
+#         channel_layer = get_channel_layer()
 
-        # Create a new Notification object
-        notification = Notification.objects.create(
-            user = callee,
-            type = 'Call',
-            profile_image = caller_image,
-            forward_id = call_id,
-            detail = f'{caller} is calling you',
-        )
-        # Save the notification to the database
-        notification.save()      
+#         # Create a new Notification object
+#         notification = Notification.objects.create(
+#             user = callee,
+#             type = 'Call',
+#             profile_image = caller_image,
+#             forward_id = call_id,
+#             detail = f'{caller} is calling you',
+#         )
+#         # Save the notification to the database
+#         notification.save()      
         
-        # send a message to the consumer
-        event = {
-                'type': 'notification',
-                'text': {
-                    'type': notification.type,
-                    'forward_id': notification.forward_id,
-                    'profile_image': notification.profile_image,
-                    'detail' : notification.detail,
-                    'created_at': notification.created_at
-                        },
-                    }
-        print(event)
+#         # send a message to the consumer
+#         event = {
+#                 'type': 'notification',
+#                 'text': {
+#                     'type': notification.type,
+#                     'forward_id': notification.forward_id,
+#                     'profile_image': notification.profile_image,
+#                     'detail' : notification.detail,
+#                     'created_at': notification.created_at
+#                         },
+#                     }
+#         print(event)
