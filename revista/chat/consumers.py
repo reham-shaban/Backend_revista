@@ -26,7 +26,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif data['message_type'] == 'image':
             # Image message
             image_data = data['image']
-            image_data = image_data.split(';base64,')[1]  # Remove data URI scheme
             image_decoded = base64.b64decode(image_data)
             
             unique_identifier = uuid.uuid4().hex  # Generate a unique identifier
@@ -42,7 +41,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif data['message_type'] == 'voice_record':
             # Voice recording message
             voice_data = data['voice_record']
-            voice_data = voice_data.split(';base64,')[1]  # Remove data URI scheme
             voice_decoded = base64.b64decode(voice_data)
             
             unique_identifier = uuid.uuid4().hex  # Generate a unique identifier
@@ -72,20 +70,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send_chat_message(content) 
 
     async def fetch_messages(self, data):
-        page_number = data['page_number'] 
-        print('page_number: ', page_number)
-        
-        # Calculate the starting and ending index for the messages
-        start_index = (page_number - 1) * PAGE_SIZE
-        end_index = start_index + PAGE_SIZE
-
-        # Fetch messages from database with pagination
         chat_object = await database_sync_to_async(Chat.objects.get)(pk=self.chat_id)
-        messages = await database_sync_to_async(Message.objects.filter(
-        chat=chat_object
-    ).order_by('-created_at'))()
-        messages = messages[start_index:end_index]
-
+        messages = await database_sync_to_async(Message.objects.filter)(
+        chat=chat_object)
+        
         content = {
             'command': 'messages',
             'messages': await json_list(messages, self.url)

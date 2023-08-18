@@ -30,16 +30,6 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ('id', 'author', 'content', 'link', 'topics', 'topics_details', 'topics_string', 'image', 'like_id', 'saved_post_id', 'likes_count', 'comments_count', 'created_at', 'updated_at')
     
-    def create(self, validated_data):
-        topics_string = validated_data.pop('topics_string')
-        topics_list = json.loads(topics_string)
-        print(topics_list)
-        # validated_data['topics'] = topics_list
-       
-        post = Post.objects.create(**validated_data)
-        post.topics.set(topics_list)
-        return post
-    
     def update(self, instance, validated_data):
         topics_string = validated_data.pop('topics_string', None)
         
@@ -76,6 +66,13 @@ class PostSerializer(serializers.ModelSerializer):
         comments_count = Comment.objects.filter(post=obj).count()
         return comments_count
 
+class PostCreateSerializer(serializers.ModelSerializer):
+    author=AuthorSerializer(read_only=True)
+    topics = serializers.PrimaryKeyRelatedField(many=True, queryset=Topic.objects.all())  # Assuming Topic is the related model
+
+    class Meta:
+        model = Post
+        fields = '__all__'
 
 # Like
 class LikeSerializer(serializers.ModelSerializer):

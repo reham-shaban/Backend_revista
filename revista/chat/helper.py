@@ -2,7 +2,6 @@
 front-end send json:
 {
     "command" : "fetch_messages",
-    "page_number": 1
 }
 or
 {
@@ -32,17 +31,6 @@ or
     "reaction_id" : "1"
 }
 
-pagination
-"page_number": 1
-105-114
-"page_number": 2
-115-150
-"page_number": 3
-151-160
-"page_number": 4
-161-162
-"page_number": 5
-[]
 '''
 
 import re

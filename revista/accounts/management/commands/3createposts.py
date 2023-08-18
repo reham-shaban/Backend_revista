@@ -11,10 +11,10 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         fake = Faker()
         
-        images = ['\post_images\hyakkimaru.jpg', '\post_images\gojo.jpg', '\post_images\dororo.jpg']
+        images = ['\post_images\hyakkimaru.jpg', '\post_images\gojo.jpg', '\post_images\dororo.jpg', '\post_images\cloths.jpg', '\post_images\cat.jpg', '\post_images\yellow.jpg', '\post_images\sky.jpg']
         
         # Create posts
-        for _ in range(30):
+        for _ in range(50):
             random_index = random.randint(0, len(images) - 1)
             post = Post.objects.create(
                 author=random.choice(Profile.objects.all()),

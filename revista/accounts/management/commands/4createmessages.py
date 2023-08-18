@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         fake = Faker()
         
-        for _ in range(20):
+        for _ in range(30):
             user1 = random.choice(CustomUser.objects.all())
             user2 = random.choice(CustomUser.objects.exclude(pk=user1.pk))  # Ensure user2 is not the same as user1
             

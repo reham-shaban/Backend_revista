@@ -1,10 +1,11 @@
+import json
 from django.db.models import Q, Sum
 from django.db import IntegrityError
 from .models import Post, Comment, Reply, SavedPost,Like,SearchHistory
 from main.models import Follow, TopicFollow, Block
 from accounts.models import CustomUser
 from rest_framework import generics
-from .serializers import PostSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer, UserSerializer, SearchHistorySerializer
+from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer, ReplySerializer, SavedPostSerializer, LikeSerializer, UserSerializer, SearchHistorySerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import TokenAuthentication
 from django.http import Http404
@@ -21,8 +22,8 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
 
 # Post 
-# [POST]: create post, [GET]: posts list in home
-class HomePostView(generics.ListCreateAPIView):
+# [GET]: posts list in home
+class HomePostView(generics.ListAPIView):
     serializer_class = PostSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -49,11 +50,21 @@ class HomePostView(generics.ListCreateAPIView):
         queryset = queryset.order_by('-total_points', '-created_at')
         return queryset
     
+# [POST]: create post
+class CreatePostView(generics.CreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostCreateSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
     def perform_create(self, serializer):
         user = self.request.user
         profile = user.profile
-        serializer.save(author=profile)
-        
+        topics_string = self.request.POST.get('topics_string', '')  # Get the topics as a string
+        topics_list = json.loads(topics_string)
+        serializer.save(author=profile, topics=topics_list)
+
+          
 # single post [GET ,PUT, PATCH, DELETE]
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
@@ -67,9 +78,9 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     
         author_blocked=Block.objects.filter(blocker=profile,blocked=author).exists()
         profile_blocked=Block.objects.filter(blocker=author,blocked=profile).exists()
-        deactivated_profile=CustomUser.filter(is_active=False).exists()
+        deactivated_profile = not author.user.is_active
         if author_blocked or profile_blocked or deactivated_profile:
-            return Response({"detail": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "FORBIDDEN!"}, status=status.HTTP_403_FORBIDDEN)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
     
