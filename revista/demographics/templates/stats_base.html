@@ -67,6 +67,22 @@
         align-items: center;
         box-shadow: 2px 2px 3px #999;
     }
+    .float2{
+        position:fixed;
+        width:60px;
+        height:60px;
+        bottom:40px;
+        right:40px;
+        left: 40px;
+        background-color:#aa333d;
+        color:#FFF;
+        border-radius:50px;
+        text-align:none;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 2px 2px 3px #999;
+    }
 </style>
 <script>
     function navigate(url){
@@ -89,6 +105,7 @@
         </nav>
     </div>
     <div class=float onclick="navigate('{% url 'report' %}')"> ></div>
+    <div class=float2 onclick="navigate('/admin/')"">Admin</div>
     <div class="content">
         {% block content %}{% endblock %}
     </div>
