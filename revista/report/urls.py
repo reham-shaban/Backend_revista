@@ -3,7 +3,7 @@ from . import views
 
 app_name = 'report'
 
-'report/'
+# 'report/'
 urlpatterns = [
    path('', views.ReportList.as_view(), name='reports'), # '/report/?status=pending&type=user'
    path('<int:pk>', views.ReportDetail.as_view(), name='report-detail'),

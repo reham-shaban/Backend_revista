@@ -13,7 +13,7 @@ class LoginView(LoginView):
     template_name = 'login.html'
 
     def get_success_url(self):
-        return '/report/'
+        return '/admin/'
     
 # Logout
 @csrf_exempt
