@@ -1,5 +1,5 @@
 from pathlib import Path
-import os
+import os#, dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-x@k+up4am2(itp#bl_7j^fe96kb+q7f^)o5%zw+*sb71#9&c-j
 #     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.vercel.app']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -122,7 +122,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+# DATABASES['default'] = dj_database_url.parse('postgres://revista_database_user:kz34hyxTuEt7lB7ZpVUoSyyzWk7fUK75@dpg-cjjh76r37aks73fl1itg-a.oregon-postgres.render.com/revista_database')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

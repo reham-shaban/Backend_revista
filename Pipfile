@@ -17,6 +17,8 @@ requests = "*"
 faker = "*"
 django-admin-interface = "*"
 opencv-python = "*"
+dj-database-url = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
