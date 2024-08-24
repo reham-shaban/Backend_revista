@@ -15,8 +15,8 @@ SECRET_KEY = 'django-insecure-x@k+up4am2(itp#bl_7j^fe96kb+q7f^)o5%zw+*sb71#9&c-j
 # if RENDER_EXTERNAL_HOSTNAME:
 #     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-DEBUG = True
-ALLOWED_HOSTS = ['.vercel.app']
+DEBUG = False
+ALLOWED_HOSTS = ['.vercel.app','backend-revista.onrender.com']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
