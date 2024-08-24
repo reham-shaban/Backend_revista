@@ -19,6 +19,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['.vercel.app','backend-revista.onrender.com']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+CSRF_TRUSTED_ORIGINS=['backend-revista.onrender.com']
 
 # Application definition
 
